@@ -1,5 +1,17 @@
 PARA O FEDSENSOR
 
+Make examples:
+
+make TARGET=cc26x0-cc13x0 BOARD=sensortag/cc2650 MAKE_KEYSIZE=128 MAKE_CRYPTOMODE=CCM MAKE_WITH_ENERGY=0
+
+make TARGET=cc26x0-cc13x0 BOARD=launchpad/cc2650 MAKE_KEYSIZE=128 MAKE_CRYPTOMODE=CCM MAKE_WITH_ENERGY=0
+
+make TARGET=simplelink BOARD=launchpad/cc26x2r1 MAKE_KEYSIZE=128 MAKE_CRYPTOMODE=CCM MAKE_WITH_ENERGY=0
+
+make TARGET=simplelink BOARD=sensortag/cc2650 MAKE_KEYSIZE=128 MAKE_CRYPTOMODE=CCM MAKE_WITH_ENERGY=0
+
+make TARGET=zoul BOARD=remote-revb MAKE_KEYSIZE=128 MAKE_CRYPTOMODE=CCM MAKE_WITH_ENERGY=0
+
 <img src="https://github.com/contiki-ng/contiki-ng.github.io/blob/master/images/logo/Contiki_logo_2RGB.png" alt="Logo" width="256">
 
 # Contiki-NG: The OS for Next Generation IoT Devices
