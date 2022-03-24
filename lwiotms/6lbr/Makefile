@@ -23,7 +23,12 @@ MODULES_REL += $(TARGET)
 
 
 
-MAKE_MAC = MAKE_MAC_TSCH
+###
+#Layer 2
+ifeq ($(LINK_LAYER),TSCH)
+  MAKE_MAC = MAKE_MAC_TSCH
+endif
+
 
 
 
