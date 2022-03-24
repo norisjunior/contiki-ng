@@ -38,9 +38,15 @@ MAKE_NATIVE = 0
 ifeq ($(TARGET),native)
   ${info TARGET IS NATIVE - no energest!}
   MAKE_NATIVE = 1
-else
+endif
+
+
+###
+#Layer 2
+ifeq ($(LINK_LAYER),TSCH)
   MAKE_MAC = MAKE_MAC_TSCH
 endif
+
 
 ifeq ($(MAKE_NATIVE),1)
   CFLAGS += -DMAKE_NATIVE=1
