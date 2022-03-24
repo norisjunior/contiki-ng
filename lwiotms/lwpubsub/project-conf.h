@@ -130,7 +130,7 @@
 //#define LOG_CONF_LEVEL_TCPIP                       LOG_LEVEL_DBG
 #define LOG_CONF_LEVEL_MAC                         LOG_LEVEL_INFO
 //#define LOG_CONF_LEVEL_FRAMER                      LOG_LEVEL_INFO
-#define MQTT_CLIENT_CONF_LOG_LEVEL                 LOG_LEVEL_DBG
+#define MQTT_CLIENT_CONF_LOG_LEVEL                 LOG_LEVEL_INFO
 
 
 #ifndef ENERGEST_CONF_ON
@@ -142,7 +142,7 @@
 #endif
 
 
-#if BOARD_SENSORTAG
+#if BOARD_SENSORTAG || BOARD_LAUNCHPAD
 #define QUEUEBUF_CONF_NUM 4
 #define RF_BLE_CONF_ENABLED 0
 #define SET_CCFG_SIZE_AND_DIS_FLAGS_DIS_GPRAM        0x0 //disable cache and use the space as RAM
