@@ -10,9 +10,9 @@ Usar: LOG_INFO para o MQTT e também para o TSCH
 cd FedSensor
 git fetch origin
 git reset --hard origin/master
-git submodule update
+git submodule update --force
 cd contiki-ng-4.7
-git submodule update --init --recursive
+git submodule update --init --recursive --force
 ```
 
 
