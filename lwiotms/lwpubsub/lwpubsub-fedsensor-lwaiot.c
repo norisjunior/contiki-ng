@@ -1289,12 +1289,12 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
       return;
 
     } else if ( (strncmp(objectID, "32002", 5) == 0) ) {
-      printf("\nNÃO EXISTE MAIS ISSO! - Solicitou 32002 - config. sensor para disparar ação.");
+      LOG_INFO("NÃO EXISTE MAIS ISSO! - Solicitou 32002 - config. sensor para disparar ação.\n");
       //parse32002(commandReceived);
       return;
 
     } else if( (strncmp(objectID, "32103", 5) == 0) ) {
-        printf("\n-------------- FedSensor - LWPubSub[LWAIoT - Logistic regression] --------------\n");
+        LOG_INFO("-------------- FedSensor - LWPubSub[LWAIoT - Logistic regression] --------------\n");
         #if (ENERGEST_CONF_ON == 1)
           energest_flush();
           LOG_INFO("MLModel %d setup start ", ml_model);
@@ -1419,7 +1419,7 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
             LOG_INFO_("[%.4f] ", weights[i][j]);
           }
         }
-        printf("\n--------------------------------------------------------------------------------\n");
+        LOG_INFO("--------------------------------------------------------------------------------\n");
 
         #if (ENERGEST_CONF_ON == 1)
           energest_flush();
@@ -1434,7 +1434,7 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
         return;
 
     } else if( (strncmp(objectID, "32106", 5) == 0) ) {
-          printf("\n-------------------- FedSensor - LWPubSub[LWAIoT - K-means] --------------------\n");
+          LOG_INFO("-------------------- FedSensor - LWPubSub[LWAIoT - K-means] --------------------\n");
           #if (ENERGEST_CONF_ON == 1)
             energest_flush();
             LOG_INFO("MLModel %d setup start ", ml_model);
