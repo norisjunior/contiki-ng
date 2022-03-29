@@ -1209,10 +1209,10 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
     #endif /* ENERGEST_CONF_ON */
 
     auth_check = !memcmp(generated_mic, buffer + a_len + m_len, MICLEN);
-    LOG_INFO("Message AuthCheck: %s", auth_check ? "OK" : "FAIL");
+    LOG_INFO("Message AuthCheck: %s\n", auth_check ? "OK" : "FAIL");
 
     if (!auth_check) {
-      LOG_ERR("\nWrong authentication tag.");
+      LOG_ERR("Wrong authentication tag.\n");
       return;
     }
 
@@ -1266,7 +1266,7 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
 
 
     if( (strncmp(objectID, "32001", 5) == 0) ) {
-      LOG_INFO("\nSolicitou 32001 - config. sensores para ativar e poll frequency.");
+      LOG_INFO("Solicitou 32001 - config. sensores para ativar e poll frequency.\n");
 
       #if (ENERGEST_CONF_ON == 1)
         energest_flush();
@@ -1489,7 +1489,7 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
 
           LOG_INFO("Number of centroids: %d\n", number_of_centroids);
 
-          LOG_INFO("--------------------------------------------------------------------------------n");
+          LOG_INFO("--------------------------------------------------------------------------------\n");
           #if (ENERGEST_CONF_ON == 1)
             energest_flush();
             LOG_INFO("MLModel %d setup finish ", ml_model);
