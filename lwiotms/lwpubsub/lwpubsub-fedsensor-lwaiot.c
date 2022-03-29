@@ -692,6 +692,7 @@ static void logreg_predict()
   for (int i = 0; i < number_of_classes ; i++) {
     LOG_INFO_("[%.4f] ", mult_values_weights[i]);
   }
+  LOG_INFO_("\n");
 
 
   for (n = 0; n < number_of_classes ; n++) {
@@ -702,6 +703,7 @@ static void logreg_predict()
   for (int i = 0; i < number_of_classes ; i++) {
     LOG_INFO_("[%.4f] ", mult_values_weights[i]);
   }
+  LOG_INFO_("\n");
 
   // Softmax:
   //Exp_sum:
@@ -710,7 +712,7 @@ static void logreg_predict()
   }
 
   LOG_INFO("EXP_SUM: %.4f", exp_sum);
-  LOG_INFO_(" -- as int: %d", (int)exp_sum);
+  LOG_INFO_(" -- as int: %d\n", (int)exp_sum);
 
   for (n = 0; n < number_of_classes ; n++) {
     logreg_prob[n] = exp(mult_values_weights[n]) / exp_sum;
@@ -718,7 +720,7 @@ static void logreg_predict()
     //printf(" --- as int: %d.%d", (int)logreg_prob[n], ((int)(logreg_prob[n] * 1000)%1000));
     snprintf(fbuf, 14, "%g", logreg_prob[n]);
     fbuf[14] = '\0';
-    LOG_INFO_("as string: %s\n", fbuf);
+    LOG_INFO_(" as string: %s\n", fbuf);
     fbuf[0] = '\0'; //zera a variável fbuf
   }
 
@@ -726,15 +728,15 @@ static void logreg_predict()
     if (logreg_prob[n] > logreg_prob[logreg_class]) { logreg_class = n; }
   }
 
-  LOG_INFO("Classe: %d", logreg_class);
+  LOG_INFO("Classe: %d\n", logreg_class);
 
   if (logreg_class == action) {
     LOG_INFO("ALERTA!\n");
   } else {
-    LOG_INFO("\nClasse != ACTION; classe = %d, action = %d\n", logreg_class, action);
+    LOG_INFO("Classe != ACTION; classe = %d, action = %d\n", logreg_class, action);
   }
 
-  printf("\n---------------------------------------------------------------------------\n");
+  LOG_INFO("---------------------------------------------------------------------------\n");
   #if (ENERGEST_CONF_ON == 1)
     energest_flush();
     LOG_INFO("MLModel %d predict finish ", ml_model);
@@ -1405,20 +1407,21 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
         LOG_INFO("Number of classes: %d\n", number_of_classes);
 
 
-        LOG_INFO("Vetor de bias:\n");
+        LOG_INFO("Vetor de bias: ");
         for (int i = 0; i < number_of_classes ; i++) {
           LOG_INFO_("[%.4f] ", bias[i]);
         }
 
         //sensorsNumber = 4; //only for testing!
-        LOG_INFO_(".\n");
+        LOG_INFO_("\n");
         LOG_INFO("Matriz de weights:\n");
         for (int i = 0; i < number_of_classes; i++ ) {
-          LOG_INFO_("\nClass [%d]: ", i);
+          LOG_INFO_("Class [%d]: ", i);
           for (int j = 0; j < sensorsNumber; j++ ) {
             LOG_INFO_("[%.4f] ", weights[i][j]);
           }
         }
+        LOG_INFO_("\n");
         LOG_INFO("--------------------------------------------------------------------------------\n");
 
         #if (ENERGEST_CONF_ON == 1)
