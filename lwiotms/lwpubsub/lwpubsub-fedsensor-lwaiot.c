@@ -552,7 +552,7 @@ static void parse32001()
 
   for (i = 0; i < sensorsNumber; i++) {
     sensorList[i] = strtol(sensorsreceived[i], NULL, 10);
-    LOG_DBG("SensorList[%d]: %lu\n", i, sensorList[i]);
+    LOG_INFO("SensorList[%d]: %lu\n", i, sensorList[i]);
   }
 
 
@@ -562,10 +562,10 @@ static void parse32001()
 
 static void kmeans_predict()
 {
-  printf("\n----------------------------- K-means predict -----------------------------\n");
+  printf("\n------------------------------- K-means predict --------------------------------\n");
   #if (ENERGEST_CONF_ON == 1)
     energest_flush();
-    LOG_INFO("MLModelPredict %d start ", ml_model);
+    LOG_INFO("MLModel %d predict start ", ml_model);
     printf("E_CPU %llu E_LPM %llu E_DEEP_LPM %llu E_TX %llu E_RX %llu E_Total: %llu\n",
       energest_type_time(ENERGEST_TYPE_CPU), energest_type_time(ENERGEST_TYPE_LPM), energest_type_time(ENERGEST_TYPE_DEEP_LPM),
       energest_type_time(ENERGEST_TYPE_TRANSMIT), energest_type_time(ENERGEST_TYPE_LISTEN), ENERGEST_GET_TOTAL_TIME());
@@ -595,9 +595,9 @@ static void kmeans_predict()
       dist_euclid[i] += powf(middle_result[i][j],2);
     }
     dist_euclid[i] = sqrtf(dist_euclid[i]);
-    printf("\n");
-    printf("Dist_euclid[%d]: %.2f", i, dist_euclid[i]);
-    printf("---- as int: %d", (int)dist_euclid[i]);
+
+    LOG_INFO("Dist_euclid[%d]: %.2f", i, dist_euclid[i]);
+    LOG_INFO_("---- as int: %d", (int)dist_euclid[i]);
 
   }
 
@@ -607,18 +607,18 @@ static void kmeans_predict()
     if (dist_euclid[i] < dist_euclid[k]) { k = i; }
   }
 
-  printf("\nCluster K: %d", k);
+  LOG_INFO("Measurement is closer to cluster (k): %d", k);
 
   if (k == action) {
-    printf("\nALERTA!\n");
+    LOG_INFO("A-L-E-R-T!\n");
   } else {
-    printf("\nK != ACTION; k = %d, action = %d\n", k, action);
+    LOG_INFO("Nothing to do once k != target; result k = %d, target k = %d\n", k, action);
   }
 
-  printf("\n---------------------------------------------------------------------------\n");
+  printf("\n--------------------------------------------------------------------------------\n");
   #if (ENERGEST_CONF_ON == 1)
     energest_flush();
-    LOG_INFO("MLModelPredict %d finish ", ml_model);
+    LOG_INFO("MLModel %d predict finish ", ml_model);
     printf("E_CPU %llu E_LPM %llu E_DEEP_LPM %llu E_TX %llu E_RX %llu E_Total: %llu\n",
       energest_type_time(ENERGEST_TYPE_CPU), energest_type_time(ENERGEST_TYPE_LPM), energest_type_time(ENERGEST_TYPE_DEEP_LPM),
       energest_type_time(ENERGEST_TYPE_TRANSMIT), energest_type_time(ENERGEST_TYPE_LISTEN), ENERGEST_GET_TOTAL_TIME());
@@ -631,10 +631,10 @@ static void kmeans_predict()
 static void logreg_predict()
 {
   //LOG_DBG("PREDICT! Regressão Logística!\n");
-  printf("\n----------------------- Logistic Regression predict -----------------------\n");
+  printf("\n------------------------- Logistic Regression predict --------------------------\n");
   #if (ENERGEST_CONF_ON == 1)
     energest_flush();
-    LOG_INFO("MLModelPredict %d start ", ml_model);
+    LOG_INFO("MLModel %d predict start ", ml_model);
     printf("E_CPU %llu E_LPM %llu E_DEEP_LPM %llu E_TX %llu E_RX %llu E_Total: %llu\n",
       energest_type_time(ENERGEST_TYPE_CPU), energest_type_time(ENERGEST_TYPE_LPM), energest_type_time(ENERGEST_TYPE_DEEP_LPM),
       energest_type_time(ENERGEST_TYPE_TRANSMIT), energest_type_time(ENERGEST_TYPE_LISTEN), ENERGEST_GET_TOTAL_TIME());
@@ -737,7 +737,7 @@ static void logreg_predict()
   printf("\n---------------------------------------------------------------------------\n");
   #if (ENERGEST_CONF_ON == 1)
     energest_flush();
-    LOG_INFO("MLModelPredict %d finish ", ml_model);
+    LOG_INFO("MLModel %d predict finish ", ml_model);
     printf("E_CPU %llu E_LPM %llu E_DEEP_LPM %llu E_TX %llu E_RX %llu E_Total: %llu\n",
       energest_type_time(ENERGEST_TYPE_CPU), energest_type_time(ENERGEST_TYPE_LPM), energest_type_time(ENERGEST_TYPE_DEEP_LPM),
       energest_type_time(ENERGEST_TYPE_TRANSMIT), energest_type_time(ENERGEST_TYPE_LISTEN), ENERGEST_GET_TOTAL_TIME());
@@ -880,9 +880,9 @@ static void
 publish(void)
 {
 
-  printf("RTIMER_NOW: %lu\n", RTIMER_NOW());
+  LOG_INFO("RTIMER_NOW: %lu\n", RTIMER_NOW());
 
-  printf("\nTomada de decisão a seguir... \n");
+  //printf("\nTomada de decisão a seguir... \n");
 
 
   //Tomar a decisão
@@ -919,14 +919,14 @@ publish(void)
         }
 
         default: {
-          printf("No cases, break!\n");
+          LOG_INFO("No sensor in the list of cases: break case!");
           break;
         }
     }
 
   }
 
-  LOG_DBG("New_observation: \n");
+  LOG_INFO("New observation/masurement collected: ");
   for (i = 0; i < sensorsNumber; i++) {
     printf("%lu: %.2f\n", sensorList[i], new_observation[i]);
   }
@@ -949,7 +949,7 @@ publish(void)
       }
 
       default: {
-        printf("Incorrect objectID/ml model!\n");
+        LOG_INFO("Not defined or incorrect ML model");
         break;
       }
   }
@@ -1114,7 +1114,7 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
     uint8_t received_message[received_message_len];
     //uint8_t received_message[APP_BUFFER_SIZE/2];
     //uint8_t received_message[200];
-    printf("\n\nReceived message len: %d\n\n", received_message_len);
+    LOG_INFO("Received message len: %d", received_message_len);
 
     /* ***** Print the payload ****** */
 
@@ -1209,7 +1209,7 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
     #endif /* ENERGEST_CONF_ON */
 
     auth_check = !memcmp(generated_mic, buffer + a_len + m_len, MICLEN);
-    printf("\n\nAuthCheck: %s\n", auth_check ? "OK" : "FAIL");
+    LOG_INFO("Message AuthCheck: %s", auth_check ? "OK" : "FAIL");
 
     if (!auth_check) {
       LOG_ERR("\nWrong authentication tag.");
@@ -1266,7 +1266,7 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
 
 
     if( (strncmp(objectID, "32001", 5) == 0) ) {
-      printf("\nSolicitou 32001 - config. sensores para ativar e poll frequency.");
+      LOG_INFO("\nSolicitou 32001 - config. sensores para ativar e poll frequency.");
 
       #if (ENERGEST_CONF_ON == 1)
         energest_flush();
@@ -1294,10 +1294,10 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
       return;
 
     } else if( (strncmp(objectID, "32103", 5) == 0) ) {
-        printf("\n-------------------- LWAIoT - Regressão Logística --------------------\n");
+        printf("\n-------------- FedSensor - LWPubSub[LWAIoT - Logistic regression] --------------\n");
         #if (ENERGEST_CONF_ON == 1)
           energest_flush();
-          LOG_INFO("MLModel %d start ", ml_model);
+          LOG_INFO("MLModel %d setup start ", ml_model);
           printf("E_CPU %llu E_LPM %llu E_DEEP_LPM %llu E_TX %llu E_RX %llu E_Total: %llu\n",
             energest_type_time(ENERGEST_TYPE_CPU), energest_type_time(ENERGEST_TYPE_LPM), energest_type_time(ENERGEST_TYPE_DEEP_LPM),
             energest_type_time(ENERGEST_TYPE_TRANSMIT), energest_type_time(ENERGEST_TYPE_LISTEN), ENERGEST_GET_TOTAL_TIME());
@@ -1401,25 +1401,29 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
 
         }
 
-        printf("\nVetor de bias:\n");
+
+        LOG_INFO("Number of classes: %d\n", number_of_classes);
+
+
+        LOG_INFO("Vetor de bias:\n");
         for (int i = 0; i < number_of_classes ; i++) {
-          printf("[%.4f] ", bias[i]);
+          LOG_INFO_("[%.4f] ", bias[i]);
         }
 
         //sensorsNumber = 4; //only for testing!
-
-        printf("\n\nMatriz de weights:\n");
+        LOG_INFO(".");
+        LOG_INFO("Matriz de weights:\n");
         for (int i = 0; i < number_of_classes; i++ ) {
-          printf("Class [%d]: ", i);
+          LOG_INFO_("Class [%d]: ", i);
           for (int j = 0; j < sensorsNumber; j++ ) {
-            printf("[%.4f] ", weights[i][j]);
+            LOG_INFO_("[%.4f] ", weights[i][j]);
           }
         }
-        printf("\n----------------------------------------------------------------------\n");
+        printf("\n--------------------------------------------------------------------------------\n");
 
         #if (ENERGEST_CONF_ON == 1)
           energest_flush();
-          LOG_INFO("MLModel %d finish ", ml_model);
+          LOG_INFO("MLModel %d setup finish ", ml_model);
           printf("E_CPU %llu E_LPM %llu E_DEEP_LPM %llu E_TX %llu E_RX %llu E_Total: %llu\n",
             energest_type_time(ENERGEST_TYPE_CPU), energest_type_time(ENERGEST_TYPE_LPM), energest_type_time(ENERGEST_TYPE_DEEP_LPM),
             energest_type_time(ENERGEST_TYPE_TRANSMIT), energest_type_time(ENERGEST_TYPE_LISTEN), ENERGEST_GET_TOTAL_TIME());
@@ -1430,10 +1434,10 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
         return;
 
     } else if( (strncmp(objectID, "32106", 5) == 0) ) {
-          printf("\n-------------------------- LWAIoT - K-means --------------------------\n");
+          printf("\n-------------------- FedSensor - LWPubSub[LWAIoT - K-means] --------------------\n");
           #if (ENERGEST_CONF_ON == 1)
             energest_flush();
-            LOG_INFO("MLModel %d start ", ml_model);
+            LOG_INFO("MLModel %d setup start ", ml_model);
             printf("E_CPU %llu E_LPM %llu E_DEEP_LPM %llu E_TX %llu E_RX %llu E_Total: %llu\n",
               energest_type_time(ENERGEST_TYPE_CPU), energest_type_time(ENERGEST_TYPE_LPM), energest_type_time(ENERGEST_TYPE_DEEP_LPM),
               energest_type_time(ENERGEST_TYPE_TRANSMIT), energest_type_time(ENERGEST_TYPE_LISTEN), ENERGEST_GET_TOTAL_TIME());
@@ -1483,12 +1487,12 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
 
           number_of_centroids = line + 1;
 
-          printf("\nNumber of centroids: %d\n", number_of_centroids);
+          LOG_INFO("\nNumber of centroids: %d\n", number_of_centroids);
 
-          printf("\n----------------------------------------------------------------------\n");
+          LOG_INFO("\n--------------------------------------------------------------------------------n");
           #if (ENERGEST_CONF_ON == 1)
             energest_flush();
-            LOG_INFO("MLModel %d finish ", ml_model);
+            LOG_INFO("MLModel %d setup finish ", ml_model);
             printf("E_CPU %llu E_LPM %llu E_DEEP_LPM %llu E_TX %llu E_RX %llu E_Total: %llu\n",
               energest_type_time(ENERGEST_TYPE_CPU), energest_type_time(ENERGEST_TYPE_LPM), energest_type_time(ENERGEST_TYPE_DEEP_LPM),
               energest_type_time(ENERGEST_TYPE_TRANSMIT), energest_type_time(ENERGEST_TYPE_LISTEN), ENERGEST_GET_TOTAL_TIME());
