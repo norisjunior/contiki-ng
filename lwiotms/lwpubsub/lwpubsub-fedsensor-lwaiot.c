@@ -562,7 +562,7 @@ static void parse32001()
 
 static void kmeans_predict()
 {
-  printf("\n------------------------------- K-means predict --------------------------------\n");
+  LOG_INFO("------------------------------- K-means predict --------------------------------\n");
   #if (ENERGEST_CONF_ON == 1)
     energest_flush();
     LOG_INFO("MLModel %d predict start ", ml_model);
@@ -615,7 +615,7 @@ static void kmeans_predict()
     LOG_INFO("Nothing to do once k != target; result k = %d, target k = %d\n", k, action);
   }
 
-  printf("\n--------------------------------------------------------------------------------\n");
+  LOG_INFO("--------------------------------------------------------------------------------\n");
   #if (ENERGEST_CONF_ON == 1)
     energest_flush();
     LOG_INFO("MLModel %d predict finish ", ml_model);
@@ -631,7 +631,7 @@ static void kmeans_predict()
 static void logreg_predict()
 {
   //LOG_DBG("PREDICT! Regressão Logística!\n");
-  printf("\n------------------------- Logistic Regression predict --------------------------\n");
+  LOG_INFO("------------------------- Logistic Regression predict --------------------------\n");
   #if (ENERGEST_CONF_ON == 1)
     energest_flush();
     LOG_INFO("MLModel %d predict start ", ml_model);
@@ -688,9 +688,9 @@ static void logreg_predict()
     }
   }
 
-  printf("\n\nResultado de X*w:\n");
+  LOG_INFO("Resultado de X*w:\n");
   for (int i = 0; i < number_of_classes ; i++) {
-    printf("[%.4f] ", mult_values_weights[i]);
+    LOG_INFO_("[%.4f] ", mult_values_weights[i]);
   }
 
 
@@ -698,9 +698,9 @@ static void logreg_predict()
     mult_values_weights[n] += bias[n];
   }
 
-  printf("\n\nResultado de X*w + b:\n");
+  LOG_INFO("Resultado de X*w + b:\n");
   for (int i = 0; i < number_of_classes ; i++) {
-    printf("[%.4f] ", mult_values_weights[i]);
+    LOG_INFO_("[%.4f] ", mult_values_weights[i]);
   }
 
   // Softmax:
@@ -709,16 +709,16 @@ static void logreg_predict()
     exp_sum += exp(mult_values_weights[n]);
   }
 
-  printf("\n\nEXP_SUM: %.4f", exp_sum);
-  printf(" -- as int: %d", (int)exp_sum);
+  LOG_INFO("EXP_SUM: %.4f", exp_sum);
+  LOG_INFO_(" -- as int: %d", (int)exp_sum);
 
   for (n = 0; n < number_of_classes ; n++) {
     logreg_prob[n] = exp(mult_values_weights[n]) / exp_sum;
-    printf("\nlogreg_prob[%d]: %.4f", n, logreg_prob[n]);
+    LOG_INFO("logreg_prob[%d]: %.4f", n, logreg_prob[n]);
     //printf(" --- as int: %d.%d", (int)logreg_prob[n], ((int)(logreg_prob[n] * 1000)%1000));
     snprintf(fbuf, 14, "%g", logreg_prob[n]);
     fbuf[14] = '\0';
-    printf("as string: %s\n", fbuf);
+    LOG_INFO_("as string: %s\n", fbuf);
     fbuf[0] = '\0'; //zera a variável fbuf
   }
 
@@ -726,12 +726,12 @@ static void logreg_predict()
     if (logreg_prob[n] > logreg_prob[logreg_class]) { logreg_class = n; }
   }
 
-  printf("\nClasse: %d", logreg_class);
+  LOG_INFO("Classe: %d", logreg_class);
 
   if (logreg_class == action) {
-    printf("\nALERTA!\n");
+    LOG_INFO("ALERTA!\n");
   } else {
-    printf("\nClasse != ACTION; classe = %d, action = %d\n", logreg_class, action);
+    LOG_INFO("\nClasse != ACTION; classe = %d, action = %d\n", logreg_class, action);
   }
 
   printf("\n---------------------------------------------------------------------------\n");
@@ -1487,9 +1487,9 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
 
           number_of_centroids = line + 1;
 
-          LOG_INFO("\nNumber of centroids: %d\n", number_of_centroids);
+          LOG_INFO("Number of centroids: %d\n", number_of_centroids);
 
-          LOG_INFO("\n--------------------------------------------------------------------------------n");
+          LOG_INFO("--------------------------------------------------------------------------------n");
           #if (ENERGEST_CONF_ON == 1)
             energest_flush();
             LOG_INFO("MLModel %d setup finish ", ml_model);
