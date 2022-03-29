@@ -597,7 +597,7 @@ static void kmeans_predict()
     dist_euclid[i] = sqrtf(dist_euclid[i]);
 
     LOG_INFO("Dist_euclid[%d]: %.2f", i, dist_euclid[i]);
-    LOG_INFO_("---- as int: %d", (int)dist_euclid[i]);
+    LOG_INFO_(" ---- as int: %d\n", (int)dist_euclid[i]);
 
   }
 
@@ -607,7 +607,7 @@ static void kmeans_predict()
     if (dist_euclid[i] < dist_euclid[k]) { k = i; }
   }
 
-  LOG_INFO("Measurement is closer to cluster (k): %d", k);
+  LOG_INFO("Measurement is closest to cluster (k): %d\n", k);
 
   if (k == action) {
     LOG_INFO("A-L-E-R-T!\n");
@@ -926,7 +926,7 @@ publish(void)
 
   }
 
-  LOG_INFO("New observation/masurement collected: ");
+  LOG_INFO("New observation/measurement collected: \n");
   for (i = 0; i < sensorsNumber; i++) {
     printf("%lu: %.2f\n", sensorList[i], new_observation[i]);
   }
@@ -949,7 +949,7 @@ publish(void)
       }
 
       default: {
-        LOG_INFO("Not defined or incorrect ML model");
+        LOG_INFO("Not defined or incorrect ML model\n");
         break;
       }
   }
@@ -1114,7 +1114,7 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
     uint8_t received_message[received_message_len];
     //uint8_t received_message[APP_BUFFER_SIZE/2];
     //uint8_t received_message[200];
-    LOG_INFO("Received message len: %d", received_message_len);
+    LOG_INFO("Received message len: %d\n", received_message_len);
 
     /* ***** Print the payload ****** */
 
@@ -1411,10 +1411,10 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
         }
 
         //sensorsNumber = 4; //only for testing!
-        LOG_INFO(".");
+        LOG_INFO_(".\n");
         LOG_INFO("Matriz de weights:\n");
         for (int i = 0; i < number_of_classes; i++ ) {
-          LOG_INFO_("Class [%d]: ", i);
+          LOG_INFO_("\nClass [%d]: ", i);
           for (int j = 0; j < sensorsNumber; j++ ) {
             LOG_INFO_("[%.4f] ", weights[i][j]);
           }
