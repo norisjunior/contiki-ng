@@ -688,7 +688,7 @@ static void logreg_predict()
     }
   }
 
-  LOG_INFO("Resultado de X*w:\n");
+  LOG_INFO("Resultado de X*w: ");
   for (int i = 0; i < number_of_classes ; i++) {
     LOG_INFO_("[%.4f] ", mult_values_weights[i]);
   }
@@ -699,7 +699,7 @@ static void logreg_predict()
     mult_values_weights[n] += bias[n];
   }
 
-  LOG_INFO("Resultado de X*w + b:\n");
+  LOG_INFO("Resultado de X*w + b: ");
   for (int i = 0; i < number_of_classes ; i++) {
     LOG_INFO_("[%.4f] ", mult_values_weights[i]);
   }
@@ -1414,9 +1414,9 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
 
         //sensorsNumber = 4; //only for testing!
         LOG_INFO_("\n");
-        LOG_INFO("Matriz de weights:\n");
+        LOG_INFO("Matriz de weights:");
         for (int i = 0; i < number_of_classes; i++ ) {
-          LOG_INFO_("Class [%d]: ", i);
+          LOG_INFO_("\nClass [%d]: ", i);
           for (int j = 0; j < sensorsNumber; j++ ) {
             LOG_INFO_("[%.4f] ", weights[i][j]);
           }
