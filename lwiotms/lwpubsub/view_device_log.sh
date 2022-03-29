@@ -6,8 +6,8 @@ if [[ $# -eq 0 ]] ; then
     echo "############################################################"
     echo 'usage:'
     echo '- hardware platform supported: LAUNCHPAD or FIREFLY'
-    echo 'example: view_device_logs.sh SENSORTAG'
-    echo '         view_device_logs.sh REMOTE'
+    echo 'example: view_device_log.sh SENSORTAG'
+    echo '         view_device_log.sh REMOTE'
     echo ''
     exit 0
 fi
