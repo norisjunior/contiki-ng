@@ -6,8 +6,8 @@ if [[ $# -eq 0 ]] ; then
     echo "############################################################"
     echo 'usage:'
     echo '- hardware platform supported: LAUNCHPAD or FIREFLY'
-    echo 'example: view_logs_app.sh SENSORTAG'
-    echo '         view_logs_app.sh REMOTE'
+    echo 'example: view_device_logs.sh SENSORTAG'
+    echo '         view_device_logs.sh REMOTE'
     echo ''
     exit 0
 fi
@@ -21,6 +21,6 @@ fi
 
 if [ "$1" == "SENSORTAG" ] ; then
   sudo ../../tools/serial-io/serialdump -s /dev/ttyACM2
-elif [ "$1" == "FIREFLY" ] ; then
+elif [ "$1" == "REMOTE" ] ; then
   sudo ../../tools/serial-io/serialdump -s /dev/ttyUSB1
 fi
