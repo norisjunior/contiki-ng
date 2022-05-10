@@ -597,7 +597,7 @@ static void kmeans_predict()
     dist_euclid[i] = sqrtf(dist_euclid[i]);
 
     LOG_INFO("Dist_euclid[%d]: %.2f", i, dist_euclid[i]);
-    LOG_INFO_(" ---- as int: %d\n", (int)dist_euclid[i]);
+    // LOG_INFO_(" ---- as int: %d\n", (int)dist_euclid[i]);
 
   }
 
@@ -688,11 +688,11 @@ static void logreg_predict()
     }
   }
 
-  LOG_INFO("Resultado de X*w: ");
-  for (int i = 0; i < number_of_classes ; i++) {
-    LOG_INFO_("[%.4f] ", mult_values_weights[i]);
-  }
-  LOG_INFO_("\n");
+  // LOG_INFO("Resultado de X*w: ");
+  // for (int i = 0; i < number_of_classes ; i++) {
+  //   LOG_INFO_("[%.4f] ", mult_values_weights[i]);
+  // }
+  // LOG_INFO_("\n");
 
 
   for (n = 0; n < number_of_classes ; n++) {
@@ -711,8 +711,8 @@ static void logreg_predict()
     exp_sum += exp(mult_values_weights[n]);
   }
 
-  LOG_INFO("EXP_SUM: %.4f", exp_sum);
-  LOG_INFO_(" -- as int: %d\n", (int)exp_sum);
+  // LOG_INFO("EXP_SUM: %.4f", exp_sum);
+  // LOG_INFO_(" -- as int: %d\n", (int)exp_sum);
 
   for (n = 0; n < number_of_classes ; n++) {
     logreg_prob[n] = exp(mult_values_weights[n]) / exp_sum;
@@ -720,7 +720,7 @@ static void logreg_predict()
     //printf(" --- as int: %d.%d", (int)logreg_prob[n], ((int)(logreg_prob[n] * 1000)%1000));
     snprintf(fbuf, 14, "%g", logreg_prob[n]);
     fbuf[14] = '\0';
-    LOG_INFO_(" as string: %s\n", fbuf);
+    // LOG_INFO_(" as string: %s\n", fbuf);
     fbuf[0] = '\0'; //zera a variável fbuf
   }
 
@@ -731,7 +731,7 @@ static void logreg_predict()
   LOG_INFO("Classe: %d\n", logreg_class);
 
   if (logreg_class == action) {
-    LOG_INFO("ALERTA!\n");
+    LOG_INFO("A-L-E-R-T-A!\n");
   } else {
     LOG_INFO("Classe != ACTION; classe = %d, action = %d\n", logreg_class, action);
   }
@@ -849,7 +849,7 @@ static float read_33250()
       //snprintf(sensor_value, 10, "%d.%u", 3, (rand()%10000));
       //float value = strtof(sensor_value, NULL);
       // value = 0.980;
-      snprintf(sensor_value, 10, "%d.%d", (100+rand()%200), (rand()%10000));
+      snprintf(sensor_value, 10, "%d.%d", (100+rand()%100), (rand()%10000));
       value = strtof(sensor_value, NULL);
   } else {
     snprintf(sensor_value, 10, "%d.%d", (rand()%20), (rand()%10000));
@@ -872,7 +872,7 @@ static float read_33251()
       //snprintf(sensor_value, 10, "%d.%u", 3, (rand()%10000));
       //float value = strtof(sensor_value, NULL);
       // value = 0.980;
-      snprintf(sensor_value, 10, "%d.%d", (100+rand()%200), (rand()%10000));
+      snprintf(sensor_value, 10, "%d.%d", (100+rand()%90), (rand()%10000));
       value = strtof(sensor_value, NULL);
   } else {
     snprintf(sensor_value, 10, "%d.%d", (rand()%20), (rand()%10000));
@@ -916,7 +916,7 @@ static float read_33253()
       //snprintf(sensor_value, 10, "%d.%u", 3, (rand()%10000));
       //float value = strtof(sensor_value, NULL);
       // value = 0.980;
-      snprintf(sensor_value, 10, "%d.%d", (50+rand()%150), (rand()%10000));
+      snprintf(sensor_value, 10, "%d.%d", (50+rand()%50), (rand()%10000));
       value = strtof(sensor_value, NULL);
   } else {
     snprintf(sensor_value, 10, "%d.%d", (rand()%2), (rand()%10000));
