@@ -753,7 +753,7 @@ static void logreg_predict()
 
 
 char sensor_value[10];
-int acc_movement_type = 0;
+int measurement_type = 0;
 
 static float read_33130()
 {
@@ -767,7 +767,7 @@ static float read_33130()
     float value = 0.0;
 
 
-    if (acc_movement_type == 0) { // fall
+    if (measurement_type == 0) { // fall
         //snprintf(sensor_value, 10, "%d.%u", 3, (rand()%10000));
         //float value = strtof(sensor_value, NULL);
         // value = 0.980;
@@ -796,7 +796,7 @@ static float read_33131()
     memset(sensor_value, 0, 10);
     float value = 0.0;
 
-    if (acc_movement_type == 0) { // fall
+    if (measurement_type == 0) { // fall
         //snprintf(sensor_value, 10, "%d.%u", 3, (rand()%10000));
         //float value = strtof(sensor_value, NULL);
         // value = 0.031;
@@ -823,7 +823,7 @@ static float read_33132()
     memset(sensor_value, 0, 10);
     float value = 0.0;
 
-    if (acc_movement_type == 0) { // fall
+    if (measurement_type == 0) { // fall
         //snprintf(sensor_value, 10, "%d.%u", 3, (rand()%10000));
         //float value = strtof(sensor_value, NULL);
         // value = -0.121;
@@ -844,10 +844,22 @@ static float read_33250()
 {
   //printf("\nRead 33250");
   memset(sensor_value, 0, 10);
-  snprintf(sensor_value, 10, "%d.%d", (0+rand()%10), (rand()%10));
-  //printf("sensor string: %s\n", sensor_value);
-  float value = strtof(sensor_value, NULL);
-  //printf("sensor float: %f\n", value);
+  float value = 0.0;
+  if (measurement_type == 0) { // fall
+      //snprintf(sensor_value, 10, "%d.%u", 3, (rand()%10000));
+      //float value = strtof(sensor_value, NULL);
+      // value = 0.980;
+      snprintf(sensor_value, 10, "%d.%d", (100+rand()%200), (rand()%10000));
+      value = strtof(sensor_value, NULL);
+  } else {
+    snprintf(sensor_value, 10, "%d.%d", (rand()%50), (rand()%10000));
+    value = strtof(sensor_value, NULL);
+  }
+
+  // snprintf(sensor_value, 10, "%d.%d", (0+rand()%10), (rand()%10));
+  // //printf("sensor string: %s\n", sensor_value);
+  // float value = strtof(sensor_value, NULL);
+  // //printf("sensor float: %f\n", value);
   return value;
 }
 
@@ -855,10 +867,21 @@ static float read_33251()
 {
   //printf("\nRead 33251");
   memset(sensor_value, 0, 10);
-  snprintf(sensor_value, 10, "%d.%d", (10+rand()%5), (rand()%5));
-  //printf("sensor string: %s\n", sensor_value);
-  float value = strtof(sensor_value, NULL);
-  //printf("sensor float: %f\n", value);
+  float value = 0.0;
+  if (measurement_type == 0) { // fall
+      //snprintf(sensor_value, 10, "%d.%u", 3, (rand()%10000));
+      //float value = strtof(sensor_value, NULL);
+      // value = 0.980;
+      snprintf(sensor_value, 10, "%d.%d", (100+rand()%200), (rand()%10000));
+      value = strtof(sensor_value, NULL);
+  } else {
+    snprintf(sensor_value, 10, "%d.%d", (rand()%50), (rand()%10000));
+    value = strtof(sensor_value, NULL);
+  }
+  // snprintf(sensor_value, 10, "%d.%d", (10+rand()%5), (rand()%5));
+  // //printf("sensor string: %s\n", sensor_value);
+  // float value = strtof(sensor_value, NULL);
+  // //printf("sensor float: %f\n", value);
   return value;
 }
 
@@ -866,10 +889,21 @@ static float read_33252()
 {
   //printf("\nRead 33252");
   memset(sensor_value, 0, 10);
-  snprintf(sensor_value, 10, "%d.%d", (20+rand()%5), (rand()%5));
-  //printf("sensor string: %s\n", sensor_value);
-  float value = strtof(sensor_value, NULL);
-  //printf("sensor float: %f\n", value);
+  float value = 0.0;
+  if (measurement_type == 0) { // fall
+      //snprintf(sensor_value, 10, "%d.%u", 3, (rand()%10000));
+      //float value = strtof(sensor_value, NULL);
+      // value = 0.980;
+      snprintf(sensor_value, 10, "%d.%d", (rand()%1), (rand()%10000));
+      value = strtof(sensor_value, NULL);
+  } else {
+    snprintf(sensor_value, 10, "%d.%d", 0, (rand()%10000));
+    value = strtof(sensor_value, NULL);
+  }
+  // snprintf(sensor_value, 10, "%d.%d", (20+rand()%5), (rand()%5));
+  // //printf("sensor string: %s\n", sensor_value);
+  // float value = strtof(sensor_value, NULL);
+  // //printf("sensor float: %f\n", value);
   return value;
 }
 
@@ -877,10 +911,21 @@ static float read_33253()
 {
   //printf("\nRead 33253");
   memset(sensor_value, 0, 10);
-  snprintf(sensor_value, 10, "%d.%d", (30+rand()%5), (rand()%5));
-  //printf("sensor string: %s\n", sensor_value);
-  float value = strtof(sensor_value, NULL);
-  //printf("sensor float: %.2f\n", value);
+  float value = 0.0;
+  if (measurement_type == 0) { // fall
+      //snprintf(sensor_value, 10, "%d.%u", 3, (rand()%10000));
+      //float value = strtof(sensor_value, NULL);
+      // value = 0.980;
+      snprintf(sensor_value, 10, "%d.%d", (50+rand()%150), (rand()%10000));
+      value = strtof(sensor_value, NULL);
+  } else {
+    snprintf(sensor_value, 10, "%d.%d", (rand()%5), (rand()%10000));
+    value = strtof(sensor_value, NULL);
+  }
+  // snprintf(sensor_value, 10, "%d.%d", (30+rand()%5), (rand()%5));
+  // //printf("sensor string: %s\n", sensor_value);
+  // float value = strtof(sensor_value, NULL);
+  // //printf("sensor float: %.2f\n", value);
   return value;
 }
 
@@ -972,8 +1017,8 @@ publish(void)
 
   //printf("\nTomada de decisão a seguir... \n");
 
-  if (acc_movement_type > 4) {
-      acc_movement_type = 0;
+  if (measurement_type > 4) {
+      measurement_type = 0;
   }
 
   //Tomar a decisão
@@ -1060,7 +1105,7 @@ publish(void)
       }
   }
 
-  acc_movement_type++;
+  measurement_type++;
 
 }
 
