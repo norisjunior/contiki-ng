@@ -766,14 +766,11 @@ static float read_33130()
     memset(sensor_value, 0, 10);
     float value = 0.0;
 
-    // if (movement_type > 10) {
-    //     movement_type = 0;
-    // }
 
     if (acc_movement_type == 0) { // fall
         //snprintf(sensor_value, 10, "%d.%u", 3, (rand()%10000));
         //float value = strtof(sensor_value, NULL);
-        value = 3.665;
+        value = 0.980;
     } else {
         snprintf(sensor_value, 10, "%d.%d", 2, (rand()%10000));
         value = strtof(sensor_value, NULL);
@@ -800,7 +797,7 @@ static float read_33131()
     if (acc_movement_type == 0) { // fall
         //snprintf(sensor_value, 10, "%d.%u", 3, (rand()%10000));
         //float value = strtof(sensor_value, NULL);
-        value = 0.8648;
+        value = 0.031;
     } else {
         snprintf(sensor_value, 10, "%d.%d", 1, (rand()%10000));
         value = strtof(sensor_value, NULL);
@@ -825,7 +822,7 @@ static float read_33132()
     if (acc_movement_type == 0) { // fall
         //snprintf(sensor_value, 10, "%d.%u", 3, (rand()%10000));
         //float value = strtof(sensor_value, NULL);
-        value = -0.3776;
+        value = -0.121;
     } else {
         snprintf(sensor_value, 10, "%d.%d", 1, (rand()%10000));
         value = strtof(sensor_value, NULL);
@@ -969,7 +966,7 @@ publish(void)
 
   //printf("\nTomada de decisão a seguir... \n");
 
-  if (acc_movement_type > 10) {
+  if (acc_movement_type > 4) {
       acc_movement_type = 0;
   }
 
@@ -1031,7 +1028,7 @@ publish(void)
 
   LOG_INFO("New observation/measurement collected: \n");
   for (i = 0; i < sensorsNumber; i++) {
-    printf("%lu: %.2f\n", sensorList[i], new_observation[i]);
+    printf("%lu: %.4f\n", sensorList[i], new_observation[i]);
   }
 
   //Make prediction
