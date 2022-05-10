@@ -852,7 +852,7 @@ static float read_33250()
       snprintf(sensor_value, 10, "%d.%d", (100+rand()%200), (rand()%10000));
       value = strtof(sensor_value, NULL);
   } else {
-    snprintf(sensor_value, 10, "%d.%d", (rand()%50), (rand()%10000));
+    snprintf(sensor_value, 10, "%d.%d", (rand()%20), (rand()%10000));
     value = strtof(sensor_value, NULL);
   }
 
@@ -875,7 +875,7 @@ static float read_33251()
       snprintf(sensor_value, 10, "%d.%d", (100+rand()%200), (rand()%10000));
       value = strtof(sensor_value, NULL);
   } else {
-    snprintf(sensor_value, 10, "%d.%d", (rand()%50), (rand()%10000));
+    snprintf(sensor_value, 10, "%d.%d", (rand()%20), (rand()%10000));
     value = strtof(sensor_value, NULL);
   }
   // snprintf(sensor_value, 10, "%d.%d", (10+rand()%5), (rand()%5));
@@ -919,7 +919,7 @@ static float read_33253()
       snprintf(sensor_value, 10, "%d.%d", (50+rand()%150), (rand()%10000));
       value = strtof(sensor_value, NULL);
   } else {
-    snprintf(sensor_value, 10, "%d.%d", (rand()%5), (rand()%10000));
+    snprintf(sensor_value, 10, "%d.%d", (rand()%2), (rand()%10000));
     value = strtof(sensor_value, NULL);
   }
   // snprintf(sensor_value, 10, "%d.%d", (30+rand()%5), (rand()%5));
