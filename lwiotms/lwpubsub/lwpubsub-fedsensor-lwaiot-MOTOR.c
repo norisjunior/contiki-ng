@@ -772,7 +772,7 @@ static float read_33130()
         //float value = strtof(sensor_value, NULL);
         value = 0.980;
     } else {
-        snprintf(sensor_value, 10, "%d.%d", 2, (rand()%10000));
+        snprintf(sensor_value, 10, "%d.%d", (2+rand()%2), (rand()%10000));
         value = strtof(sensor_value, NULL);
     }
     //printf("sensor string: %s\n", sensor_value);
@@ -799,7 +799,7 @@ static float read_33131()
         //float value = strtof(sensor_value, NULL);
         value = 0.031;
     } else {
-        snprintf(sensor_value, 10, "%d.%d", 1, (rand()%10000));
+        snprintf(sensor_value, 10, "-%d.%d", (rand()%1), (rand()%10000));
         value = strtof(sensor_value, NULL);
     }
     //printf("sensor string: %s\n", sensor_value);
@@ -824,7 +824,7 @@ static float read_33132()
         //float value = strtof(sensor_value, NULL);
         value = -0.121;
     } else {
-        snprintf(sensor_value, 10, "%d.%d", 1, (rand()%10000));
+        snprintf(sensor_value, 10, "-%d.%d", (1+rand()%3), (rand()%10000));
         value = strtof(sensor_value, NULL);
     }
     //printf("sensor string: %s\n", sensor_value);
