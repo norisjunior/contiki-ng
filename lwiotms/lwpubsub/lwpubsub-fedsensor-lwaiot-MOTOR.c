@@ -611,8 +611,18 @@ static void kmeans_predict()
 
   if (k == action) {
     LOG_INFO("A-L-E-R-T!\n");
+    leds_on(LEDS_RED);
+    #if BOARD_SENSORTAG
+      buzzer_start(1000);
+    #endif
   } else {
     LOG_INFO("Nothing to do once k != target; result k = %d, target k = %d\n", k, action);
+    leds_off(LEDS_RED);
+    #if BOARD_SENSORTAG
+      if(buzzer_state()) {
+        buzzer_stop();
+      }
+    #endif
   }
 
   LOG_INFO("--------------------------------------------------------------------------------\n");
@@ -732,8 +742,18 @@ static void logreg_predict()
 
   if (logreg_class == action) {
     LOG_INFO("A-L-E-R-T-A!\n");
+    leds_on(LEDS_RED);
+    #if BOARD_SENSORTAG
+      buzzer_start(1000);
+    #endif
   } else {
     LOG_INFO("Classe != ACTION; classe = %d, action = %d\n", logreg_class, action);
+    leds_off(LEDS_RED);
+    #if BOARD_SENSORTAG
+      if(buzzer_state()) {
+        buzzer_stop();
+      }
+    #endif
   }
 
   LOG_INFO("---------------------------------------------------------------------------\n");
