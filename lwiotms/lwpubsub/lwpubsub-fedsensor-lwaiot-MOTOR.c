@@ -770,10 +770,12 @@ static float read_33130()
     if (acc_movement_type == 0) { // fall
         //snprintf(sensor_value, 10, "%d.%u", 3, (rand()%10000));
         //float value = strtof(sensor_value, NULL);
-        value = 0.980;
-    } else {
+        // value = 0.980;
         snprintf(sensor_value, 10, "%d.%d", (2+rand()%2), (rand()%10000));
         value = strtof(sensor_value, NULL);
+    } else {
+      snprintf(sensor_value, 10, "%d.%d", (0+rand()%1), (rand()%10000));
+      value = strtof(sensor_value, NULL);
     }
     //printf("sensor string: %s\n", sensor_value);
     //printf("sensor float: %f\n", value);
@@ -797,10 +799,12 @@ static float read_33131()
     if (acc_movement_type == 0) { // fall
         //snprintf(sensor_value, 10, "%d.%u", 3, (rand()%10000));
         //float value = strtof(sensor_value, NULL);
-        value = 0.031;
-    } else {
+        // value = 0.031;
         snprintf(sensor_value, 10, "-%d.%d", (rand()%1), (rand()%10000));
         value = strtof(sensor_value, NULL);
+    } else {
+      snprintf(sensor_value, 10, "%d.%d", 0, (rand()%10000));
+      value = strtof(sensor_value, NULL);
     }
     //printf("sensor string: %s\n", sensor_value);
     //printf("sensor float: %f\n", value);
@@ -822,10 +826,12 @@ static float read_33132()
     if (acc_movement_type == 0) { // fall
         //snprintf(sensor_value, 10, "%d.%u", 3, (rand()%10000));
         //float value = strtof(sensor_value, NULL);
-        value = -0.121;
-    } else {
+        // value = -0.121;
         snprintf(sensor_value, 10, "-%d.%d", (1+rand()%3), (rand()%10000));
         value = strtof(sensor_value, NULL);
+    } else {
+      snprintf(sensor_value, 10, "-%d.%d", 0, (rand()%10000));
+      value = strtof(sensor_value, NULL);
     }
     //printf("sensor string: %s\n", sensor_value);
     //printf("sensor float: %f\n", value);
