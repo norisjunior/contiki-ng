@@ -596,7 +596,7 @@ static void kmeans_predict()
     }
     dist_euclid[i] = sqrtf(dist_euclid[i]);
 
-    LOG_INFO("Dist_euclid[%d]: %.2f", i, dist_euclid[i]);
+    LOG_INFO("Dist_euclid[%d]: %.2f\n", i, dist_euclid[i]);
     // LOG_INFO_(" ---- as int: %d\n", (int)dist_euclid[i]);
 
   }
@@ -716,7 +716,7 @@ static void logreg_predict()
 
   for (n = 0; n < number_of_classes ; n++) {
     logreg_prob[n] = exp(mult_values_weights[n]) / exp_sum;
-    LOG_INFO("logreg_prob[%d]: %.4f", n, logreg_prob[n]);
+    LOG_INFO("logreg_prob[%d]: %.4f\n", n, logreg_prob[n]);
     //printf(" --- as int: %d.%d", (int)logreg_prob[n], ((int)(logreg_prob[n] * 1000)%1000));
     snprintf(fbuf, 14, "%g", logreg_prob[n]);
     fbuf[14] = '\0';
