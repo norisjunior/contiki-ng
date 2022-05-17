@@ -12,15 +12,15 @@ if [[ $# -eq 0 ]] ; then
     exit 0
 fi
 
-if   [ "$1" != 'SENSORTAG' ] && [ "$1" != 'REMOTE' ] ; then
-  echo 'error: only SENSORTAG or REMOTE supported platforms'
+if   [ "$1" != 'SENSORTAG' ] && [ "$1" != 'REMOTE' ] && [ "$1" != 'CC1352P1' ] ; then
+  echo 'error: only SENSORTAG, REMOTE or CC1352P1 supported platforms'
   exit 0
 fi
 
 #sudo ../../tools/serial-io/tunslip6 -L -v -s /dev/ttyACM0 fd00::1/64
 
-if [ "$1" == "SENSORTAG" ] ; then
-  sudo ../../tools/serial-io/serialdump -s /dev/ttyACM2
+if [ "$1" == "SENSORTAG" ] || [ "$1" == "CC1352P1" ] ; then
+  sudo ../../tools/serial-io/serialdump -s /dev/ttyACM0
 elif [ "$1" == "REMOTE" ] ; then
   sudo ../../tools/serial-io/serialdump -s /dev/ttyUSB1
 fi
