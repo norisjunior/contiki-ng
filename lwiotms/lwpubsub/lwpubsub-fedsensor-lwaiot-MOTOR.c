@@ -43,10 +43,10 @@
 #include "dev/leds.h"
 #include "os/sys/log.h"
 #include "mqtt-client.h"
-// #if BOARD_SENSORTAG
-// #include "board-peripherals.h"
-// //#include "ti-lib.h"
-// #endif
+#if BOARD_SENSORTAG
+#include "board-peripherals.h"
+#include "ti-lib.h"
+#endif
 
 #include <string.h>
 #include <strings.h>
@@ -1723,17 +1723,17 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
         if(strncmp(commandReceived, "1", 1) == 0) {
           LOG_INFO("CommandReceived type execute - buzzer (03338)\n");
           printf("\n> Buzzer On <\n\n");
-// #if BOARD_SENSORTAG
-//           buzzer_start(1000);
-// #endif
+#if BOARD_SENSORTAG
+          buzzer_start(1000);
+#endif
         } else if(strncmp(commandReceived, "0", 1) == 0) {
           LOG_INFO("CommandReceived type execute - buzzer (03338)\n");
           printf("\n> Buzzer Off <\n\n");
-// #if BOARD_SENSORTAG
-//           if(buzzer_state()) {
-//             buzzer_stop();
-//           }
-// #endif
+#if BOARD_SENSORTAG
+          if(buzzer_state()) {
+            buzzer_stop();
+          }
+#endif
         } else {
           LOG_ERR("--Wrong command--\n");
         }
