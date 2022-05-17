@@ -79,6 +79,7 @@
 
 
 
+
 /*---------------------------------------------------------------------------*/
 #define LOG_MODULE "LWPubSub"
 #ifdef MQTT_CLIENT_CONF_LOG_LEVEL
@@ -289,6 +290,126 @@ static int number_of_classes = 0;
 
 
 
+
+// Get measurements
+#if BOARD_SENSORTAG
+#define HDC_1000_READING_ERROR    CC26XX_SENSOR_READING_ERROR
+#define TMP_007_READING_ERROR     CC26XX_SENSOR_READING_ERROR
+static int temp_measurement = 0;
+
+/*---------------------------------------------------------------------------*/
+static void
+print_mpu_reading(int reading)
+{
+  if(reading < 0) {
+    printf("-");
+    reading = -reading;
+  }
+
+  printf("%d.%02d", reading / 100, reading % 100);
+}
+/*---------------------------------------------------------------------------*/
+static void
+get_tmp_reading()
+{
+
+  temp_measurement = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_ALL);
+
+  if(temp_measurement == TMP_007_READING_ERROR) {
+    printf("TMP: Ambient Read Error\n");
+    return;
+  }
+
+  temp_measurement = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_AMBIENT);
+  printf("TMP: Ambient=%d.%03d C\n", temp_measurement / 1000, temp_measurement % 1000);
+
+  // value = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_OBJECT);
+  // printf("TMP: Object=%d.%03d C\n", value / 1000, value % 1000);
+
+  SENSORS_DEACTIVATE(tmp_007_sensor);
+}
+/*---------------------------------------------------------------------------*/
+// static void
+// get_hdc_reading()
+// {
+//   int value;
+
+//   value = hdc_1000_sensor.value(HDC_1000_SENSOR_TYPE_TEMP);
+//   if(value != HDC_1000_READING_ERROR) {
+//     printf("HDC: Temp=%d.%02d C\n", value / 100, value % 100);
+//   } else {
+//     printf("HDC: Temp Read Error\n");
+//   }
+
+//   value = hdc_1000_sensor.value(HDC_1000_SENSOR_TYPE_HUMID);
+//   if(value != HDC_1000_READING_ERROR) {
+//     printf("HDC: Humidity=%d.%02d %%RH\n", value / 100, value % 100);
+//   } else {
+//     printf("HDC: Humidity Read Error\n");
+//   }
+
+// }
+/*---------------------------------------------------------------------------*/
+static void
+get_mpu_reading()
+{
+  int value;
+
+  printf("MPU Gyro: X=");
+  value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_GYRO_X);
+  print_mpu_reading(value);
+  printf(" deg/sec\n");
+
+  printf("MPU Gyro: Y=");
+  value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_GYRO_Y);
+  print_mpu_reading(value);
+  printf(" deg/sec\n");
+
+  printf("MPU Gyro: Z=");
+  value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_GYRO_Z);
+  print_mpu_reading(value);
+  printf(" deg/sec\n");
+
+  printf("MPU Acc: X=");
+  value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_X);
+  print_mpu_reading(value);
+  printf(" G\n");
+  new_observation[0] = value;
+
+  printf("MPU Acc: Y=");
+  value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_Y);
+  print_mpu_reading(value);
+  printf(" G\n");
+  new_observation[1] = value;
+
+  printf("MPU Acc: Z=");
+  value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_Z);
+  print_mpu_reading(value);
+  printf(" G\n");
+  new_observation[2] = value;
+
+  SENSORS_DEACTIVATE(mpu_9250_sensor);
+}
+/*---------------------------------------------------------------------------*/
+static void
+init_tmp_reading()
+{
+  SENSORS_ACTIVATE(tmp_007_sensor);
+}
+/*---------------------------------------------------------------------------*/
+// static void
+// init_hdc_reading(void *not_used)
+// {
+//   SENSORS_ACTIVATE(hdc_1000_sensor);
+// }
+/*---------------------------------------------------------------------------*/
+static void
+init_mpu_reading()
+{
+  mpu_9250_sensor.configure(SENSORS_ACTIVE, MPU_9250_SENSOR_TYPE_ALL);
+}
+#endif
+/*---------------------------------------------------------------------------*/
 
 
 
@@ -521,6 +642,16 @@ static void parsePayload(uint8_t* mqttPayload, int mqttPayload_len)
     LOG_DBG(" - CommandReceivedLen: %d\n", commandReceivedlen);
 
 
+#if BOARD_SENSORTAG
+  if(strncmp(objectID, "03303", 5) == 0) { //commandReceived request measurement
+    init_tmp_reading();
+  }
+
+  // if(strncmp(objectID, "03304", 5) == 0) { //commandReceived request measurement
+  //   init_hdc_reading();
+  // }
+#endif
+
 }
 
 
@@ -575,6 +706,11 @@ static void parse32001()
     LOG_INFO("SensorList[%d]: %lu\n", i, sensorList[i]);
   }
 
+#if BOARD_SENSORTAG
+  if ( (sensorList[0] == 33130) && (sensorList[0] == 33131) && (sensorList[0] == 33132) ) { //real accelerometer data
+    init_mpu_reading();
+  }
+#endif
 
 }
 
@@ -1111,6 +1247,12 @@ static void
 publish(int is_measurement)
 {
 
+#if BOARD_SENSORTAG
+  if ( (sensorList[0] == 33130) && (sensorList[0] == 33131) && (sensorList[0] == 33132) ) { //real accelerometer data
+    init_mpu_reading();
+  }
+#endif
+
   LOG_INFO("RTIMER_NOW: %lu\n", RTIMER_NOW());
 
   //printf("\nTomada de decisão a seguir... \n");
@@ -1205,6 +1347,12 @@ publish(int is_measurement)
 
   }
 
+#if BOARD_SENSORTAG
+  if ( (sensorList[0] == 33130) && (sensorList[0] == 33131) && (sensorList[0] == 33132) ) { //real accelerometer data
+    get_mpu_reading();
+  }
+#endif
+
   LOG_INFO("New observation/measurement collected: \n");
   for (i = 0; i < sensorsNumber; i++) {
     printf("%lu: %.4f\n", sensorList[i], new_observation[i]);
@@ -1277,14 +1425,21 @@ publish(int is_measurement)
     buf_ptr += len;
     payload_size += len;
 
-    //LWPubSub - check board/extensions
-    if (mqtt_client_extension_count != 0) {
-      len = snprintf(buf_ptr, remaining, "%s", mqtt_client_extensions[0]->value());
-      LOG_DBG("Client has extensions\n");
-    } else {
-      // Native target - send dummy measurement
-      len = snprintf(buf_ptr, remaining, "%d.%d", (10+rand()%10), (rand()%10));
-    }
+    // //LWPubSub - check board/extensions
+    // if (mqtt_client_extension_count != 0) {
+    //   len = snprintf(buf_ptr, remaining, "%s", mqtt_client_extensions[0]->value());
+    //   LOG_DBG("Client has extensions\n");
+    // } else {
+    //   // Native target - send dummy measurement
+    //   len = snprintf(buf_ptr, remaining, "%d.%d", (10+rand()%10), (rand()%10));
+    // }
+
+#if BOARD_SENSORTAG
+    get_tmp_reading();
+    len = snprintf(buf_ptr, remaining, "%d.%03d", temp_measurement / 1000, temp_measurement % 1000);
+#else
+    len = snprintf(buf_ptr, remaining, "%d.%d", (10+rand()%10), (rand()%10));
+#endif
 
     if(len < 0 || len >= remaining) {
       LOG_ERR("Buffer too short. Have %d, need %d + \\0\n", remaining,
@@ -2435,6 +2590,7 @@ state_machine(void)
         // leds_on(MQTT_CLIENT_STATUS_LED);
         // ctimer_set(&ct, PUBLISH_LED_ON_DURATION, publish_led_off, NULL);
         LOG_DBG("Publishing\n");
+        // FedSensor - periodically get measurement and take action
         publish(0);
       }
       etimer_set(&publish_periodic_timer, conf.pub_interval);
