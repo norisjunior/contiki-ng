@@ -333,16 +333,16 @@ static char sub_topic[BUFFER_SIZE];
  * The main MQTT buffers.
  * We will need to increase if we start publishing more data.
  */
-//#define APP_BUFFER_SIZE 512
+#define APP_BUFFER_SIZE 512
 static struct mqtt_connection conn;
-//static char app_buffer[APP_BUFFER_SIZE];
+static char app_buffer[APP_BUFFER_SIZE];
 /*---------------------------------------------------------------------------*/
 #define QUICKSTART "quickstart"
 /*---------------------------------------------------------------------------*/
 static struct mqtt_message *msg_ptr = 0;
 static struct etimer publish_periodic_timer;
 static struct ctimer ct;
-//static char *buf_ptr;
+static char *buf_ptr;
 static uint16_t seq_nr_value = 0;
 /*---------------------------------------------------------------------------*/
 /* Parent RSSI functionality */
@@ -396,6 +396,26 @@ static uint8_t key_bytes[16]; //AES-CCM-8 - 128-bit key
 
 //char *nonce = "0000000000000";
 #define NONCE_LEN 13
+static char nonce[NONCE_LEN*2] = "00000000000000000000000000";
+
+static void generate_nonce()
+{
+  //Random initialization
+  random_init(random_rand() + (int16_t)uipbuf_get_attr(UIPBUF_ATTR_RSSI));
+
+//  printf("Rand 13: %lu", rand()%13);
+
+  for (int i = 0, j = 0; i < NONCE_LEN; ++i, j += 2)
+  {
+    sprintf(nonce + j, "%02x", rand()%13 & 0xff);
+  }
+
+  LOG_DBG("Nonce generate_nonce: %s\n\n", nonce);
+  // for (int i = 0; i < 13; i++) {
+  //    nonce[i] = rand();
+  // }
+}
+
 
 #if (LOG_LEVEL == LOG_LEVEL_DBG)
 static void dump(uint8_t* str, int len)
@@ -948,6 +968,64 @@ static float read_33253()
   // //printf("sensor float: %.2f\n", value);
   return value;
 }
+
+static float read_dummy()
+{
+  memset(sensor_value, 0, 10);
+  float value = 0.0;
+  if (measurement_type == 0) { // fall
+      snprintf(sensor_value, 10, "%d.%d", (50+rand()%50), (rand()%10000));
+      value = strtof(sensor_value, NULL);
+  } else {
+    snprintf(sensor_value, 10, "%d.%d", (rand()%2), (rand()%10000));
+    value = strtof(sensor_value, NULL);
+  }
+  return value;
+}
+
+static float read_33254()
+{
+  float value = 0.0;
+  value = read_dummy();
+  return value;
+}
+
+static float read_33255()
+{
+  float value = 0.0;
+  value = read_dummy();
+  return value;
+}
+
+static float read_33256()
+{
+  float value = 0.0;
+  value = read_dummy();
+  return value;
+}
+
+static float read_33257()
+{
+  float value = 0.0;
+  value = read_dummy();
+  return value;
+}
+
+static float read_33258()
+{
+  float value = 0.0;
+  value = read_dummy();
+  return value;
+}
+
+static float read_33259()
+{
+  float value = 0.0;
+  value = read_dummy();
+  return value;
+}
+
+
 
 
 
@@ -2354,10 +2432,10 @@ state_machine(void)
         subscribe();
         state = STATE_PUBLISHING;
       } else {
-        leds_on(MQTT_CLIENT_STATUS_LED);
-        ctimer_set(&ct, PUBLISH_LED_ON_DURATION, publish_led_off, NULL);
+        // leds_on(MQTT_CLIENT_STATUS_LED);
+        // ctimer_set(&ct, PUBLISH_LED_ON_DURATION, publish_led_off, NULL);
         LOG_DBG("Publishing\n");
-        publish();
+        publish(0);
       }
       etimer_set(&publish_periodic_timer, conf.pub_interval);
       /* Return here so we don't end up rescheduling the timer */
