@@ -6,9 +6,8 @@ echo "############################################################"
 
 if [[ $# -eq 0 ]] ; then
     echo 'usage:'
-    echo '- hardware platform supported: LAUNCHPAD or REMOTE'
-    echo 'example: make_app.sh SENSORTAG'
-    echo '         make_app.sh REMOTE'
+    echo '- hardware platform supported: SENSORTAG, REMOTE, NATIVE, CC1352P1'
+    echo 'example: make_app.sh <BOARD>'
     echo ''
     exit 0
 fi
