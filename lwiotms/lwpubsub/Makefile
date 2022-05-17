@@ -1,4 +1,4 @@
-CONTIKI_PROJECT = lwpubsub-fedsensor-lwaiot lwpubsub-fedsensor-lwaiot-MOTOR
+CONTIKI_PROJECT = lwpubsub-fedsensor-ml_and_msg
 all: $(CONTIKI_PROJECT)
 
 CONTIKI = ../..
