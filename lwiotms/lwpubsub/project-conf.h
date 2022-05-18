@@ -146,6 +146,7 @@
 #define QUEUEBUF_CONF_NUM 4
 #define RF_BLE_CONF_ENABLED 0
 #define SET_CCFG_SIZE_AND_DIS_FLAGS_DIS_GPRAM        0x0 //disable cache and use the space as RAM
+#define RF_CONF_MODE    RF_MODE_2_4_GHZ //for launchpad
 #endif
 
 //Reduce LPM modes on zoul. Never enter LPM 2, only 0 (no LPM) or 1
