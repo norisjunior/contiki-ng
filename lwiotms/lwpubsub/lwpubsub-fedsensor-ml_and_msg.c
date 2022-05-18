@@ -695,11 +695,11 @@ static void parsePayload(uint8_t* mqttPayload, int mqttPayload_len)
 #if BOARD_SENSORTAG
   if(strncmp(objectID, "03303", 5) == 0) { //commandReceived request measurement
     LOG_INFO(" - Pediu temperatura - \n");
-    init_tmp_reading();
+    // init_tmp_reading();
   }
   if(strncmp(objectID, "03304", 5) == 0) { //commandReceived request measurement
     LOG_INFO(" - Pediu umidade - \n");
-    init_hdc_reading();
+    // init_hdc_reading();
   }
 #endif
 
@@ -2265,10 +2265,9 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
           /* Fire publish from here! */
           LOG_INFO("Publish from commandReceived started\n");
           publish_from_command = 1;
-// Inicializado na função de serialização
-// #if BOARD_SENSORTAG
-//           init_tmp_reading();
-// #endif
+#if BOARD_SENSORTAG
+          init_tmp_reading();
+#endif
           publish(1); //1 = is measurement
           LOG_INFO("Publish from commandReceived finished\n");
         } else {
@@ -2287,10 +2286,9 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
           /* Fire publish from here! */
           LOG_INFO("Publish from commandReceived started\n");
           publish_from_command = 1;
-// Inicializado na função de serialização
-// #if BOARD_SENSORTAG
-//           init_hdc_reading();
-// #endif
+#if BOARD_SENSORTAG
+          init_hdc_reading();
+#endif
           publish(1); //1 = is measurement
           LOG_INFO("Publish from commandReceived finished\n");
         } else {
