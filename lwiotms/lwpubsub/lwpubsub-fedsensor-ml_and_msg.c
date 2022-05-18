@@ -669,9 +669,11 @@ static void parsePayload(uint8_t* mqttPayload, int mqttPayload_len)
 #if BOARD_SENSORTAG
   if(strncmp(objectID, "03303", 5) == 0) { //commandReceived request measurement
     LOG_INFO(" - Pediu temperatura - \n");
+    init_tmp_reading();
   }
   if(strncmp(objectID, "03304", 5) == 0) { //commandReceived request measurement
     LOG_INFO(" - Pediu umidade - \n");
+    init_hdc_reading();
   }
 #endif
 
@@ -1270,12 +1272,6 @@ static void
 publish(int is_measurement)
 {
 
-#if BOARD_SENSORTAG
-  if ( (sensorList[0] == 33130) && (sensorList[1] == 33131) && (sensorList[2] == 33132) ) { //real accelerometer data
-    init_mpu_reading(NULL);
-  }
-#endif
-
 #if (ENERGEST_CONF_ON == 1)
   energest_flush();
   LOG_INFO("Get_measurement start ");
@@ -1283,6 +1279,20 @@ publish(int is_measurement)
     energest_type_time(ENERGEST_TYPE_CPU), energest_type_time(ENERGEST_TYPE_LPM), energest_type_time(ENERGEST_TYPE_DEEP_LPM),
     energest_type_time(ENERGEST_TYPE_TRANSMIT), energest_type_time(ENERGEST_TYPE_LISTEN), ENERGEST_GET_TOTAL_TIME());
 #endif /* ENERGEST_CONF_ON */
+
+#if BOARD_SENSORTAG
+  if ( (sensorList[0] == 33130) && (sensorList[1] == 33131) && (sensorList[2] == 33132) ) { //real accelerometer data
+    init_mpu_reading(NULL);
+  }
+
+  if(strncmp(objectID, "03303", 5) == 0) { //commandReceived request measurement
+    get_tmp_reading();
+  }
+
+  if(strncmp(objectID, "03304", 5) == 0) { //commandReceived request measurement
+    get_hdc_reading();
+  }
+#endif
 
   LOG_INFO("RTIMER_NOW: %lu\n", RTIMER_NOW());
 
@@ -1387,12 +1397,15 @@ publish(int is_measurement)
 
   LOG_INFO("New observation/measurement collected: \n");
   for (i = 0; i < sensorsNumber; i++) {
-    printf("%lu: %.4f\n", sensorList[i], new_observation[i]);
+    printf("%lu: %.4f\n\n", sensorList[i], new_observation[i]);
+    char reading[10];
+    sprintf(reading, "%g", new_observation[i]);
+    printf("%lu: %s\n", sensorList[i], reading);
   }
 
 #if (ENERGEST_CONF_ON == 1)
   energest_flush();
-  LOG_INFO("Get_measurement start ");
+  LOG_INFO("Get_measurement finish ");
   printf("E_CPU %llu E_LPM %llu E_DEEP_LPM %llu E_TX %llu E_RX %llu E_Total: %llu\n",
     energest_type_time(ENERGEST_TYPE_CPU), energest_type_time(ENERGEST_TYPE_LPM), energest_type_time(ENERGEST_TYPE_DEEP_LPM),
     energest_type_time(ENERGEST_TYPE_TRANSMIT), energest_type_time(ENERGEST_TYPE_LISTEN), ENERGEST_GET_TOTAL_TIME());
@@ -2212,7 +2225,10 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
           /* Fire publish from here! */
           LOG_INFO("Publish from commandReceived started\n");
           publish_from_command = 1;
-          get_tmp_reading();
+// Inicializado na função de serialização
+// #if BOARD_SENSORTAG
+//           init_tmp_reading();
+// #endif
           publish(1); //1 = is measurement
           LOG_INFO("Publish from commandReceived finished\n");
         } else {
@@ -2231,7 +2247,10 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
           /* Fire publish from here! */
           LOG_INFO("Publish from commandReceived started\n");
           publish_from_command = 1;
-          get_hdc_reading();
+// Inicializado na função de serialização
+// #if BOARD_SENSORTAG
+//           init_hdc_reading();
+// #endif
           publish(1); //1 = is measurement
           LOG_INFO("Publish from commandReceived finished\n");
         } else {
