@@ -575,6 +575,7 @@ static void dump(uint8_t* str, int len)
 }
 #endif  /* IF LOG_LEVEL_DBG - PHEX and DUMP */
 
+// https://stackoverflow.com/questions/23191203/convert-float-to-string-without-sprintf
 #define CHAR_BUFF_SIZE 10
 static char * _float_to_char(float x, char *p) {
     char *s = p + CHAR_BUFF_SIZE; // go to end of buffer
@@ -1953,8 +1954,9 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
 
       #if (ENERGEST_CONF_ON == 1)
         energest_flush();
-        LOG_INFO("MLModel 32001 finish ");
+        LOG_INFO("MLModel 32001 finish %d sensors");
         printf("E_CPU %llu E_LPM %llu E_DEEP_LPM %llu E_TX %llu E_RX %llu E_Total: %llu\n",
+          sensorsNumber,
           energest_type_time(ENERGEST_TYPE_CPU), energest_type_time(ENERGEST_TYPE_LPM), energest_type_time(ENERGEST_TYPE_DEEP_LPM),
           energest_type_time(ENERGEST_TYPE_TRANSMIT), energest_type_time(ENERGEST_TYPE_LISTEN), ENERGEST_GET_TOTAL_TIME());
       #endif /* ENERGEST_CONF_ON */
