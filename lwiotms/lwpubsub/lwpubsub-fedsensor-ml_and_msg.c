@@ -575,6 +575,31 @@ static void dump(uint8_t* str, int len)
 }
 #endif  /* IF LOG_LEVEL_DBG - PHEX and DUMP */
 
+#define CHAR_BUFF_SIZE 10
+static char * _float_to_char(float x, char *p) {
+    char *s = p + CHAR_BUFF_SIZE; // go to end of buffer
+    uint16_t decimals;  // variable to store the decimals
+    int units;  // variable to store the units (part to left of decimal place)
+    if (x < 0) { // take care of negative numbers
+        decimals = (int)(x * -100) % 100; // make 1000 for 3 decimals etc.
+        units = (int)(-1 * x);
+    } else { // positive numbers
+        decimals = (int)(x * 100) % 100;
+        units = (int)x;
+    }
+
+    *--s = (decimals % 10) + '0';
+    decimals /= 10; // repeat for as many decimal places as you need
+    *--s = (decimals % 10) + '0';
+    *--s = '.';
+
+    while (units > 0) {
+        *--s = (units % 10) + '0';
+        units /= 10;
+    }
+    if (x < 0) *--s = '-'; // unary minus sign for negative numbers
+    return s;
+}
 
 /************************ SECURITY FUNCTIONS *********************************/
 /*---------------------------------------------------------------------------*/
@@ -1397,10 +1422,9 @@ publish(int is_measurement)
 
   LOG_INFO("New observation/measurement collected: \n");
   for (i = 0; i < sensorsNumber; i++) {
-    printf("%lu: %.4f\n\n", sensorList[i], new_observation[i]);
-    char reading[10];
-    sprintf(reading, "%g", new_observation[i]);
-    printf("%lu: %s\n", sensorList[i], reading);
+    printf("%lu: %.4f - ", sensorList[i], new_observation[i]);
+    char reading[10] = "\0";
+    printf("as string: %s\n", _float_to_char(new_observation[i], reading));
   }
 
 #if (ENERGEST_CONF_ON == 1)
