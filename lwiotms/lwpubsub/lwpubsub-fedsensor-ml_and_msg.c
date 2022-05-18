@@ -293,7 +293,7 @@ static int number_of_classes = 0;
 
 // Get measurements
 #if BOARD_SENSORTAG
-#define SENSOR_READING_PERIOD (CLOCK_SECOND * 20)
+#define SENSOR_READING_PERIOD (CLOCK_SECOND * 10) // de 20 para 10
 #define SENSOR_READING_RANDOM (CLOCK_SECOND << 4)
 
 static struct ctimer tmp_timer, hdc_timer, mpu_timer;
@@ -1276,6 +1276,14 @@ publish(int is_measurement)
   }
 #endif
 
+#if (ENERGEST_CONF_ON == 1)
+  energest_flush();
+  LOG_INFO("Get_measurement start ");
+  printf("E_CPU %llu E_LPM %llu E_DEEP_LPM %llu E_TX %llu E_RX %llu E_Total: %llu\n",
+    energest_type_time(ENERGEST_TYPE_CPU), energest_type_time(ENERGEST_TYPE_LPM), energest_type_time(ENERGEST_TYPE_DEEP_LPM),
+    energest_type_time(ENERGEST_TYPE_TRANSMIT), energest_type_time(ENERGEST_TYPE_LISTEN), ENERGEST_GET_TOTAL_TIME());
+#endif /* ENERGEST_CONF_ON */
+
   LOG_INFO("RTIMER_NOW: %lu\n", RTIMER_NOW());
 
   //printf("\nTomada de decisão a seguir... \n");
@@ -1381,6 +1389,14 @@ publish(int is_measurement)
   for (i = 0; i < sensorsNumber; i++) {
     printf("%lu: %.4f\n", sensorList[i], new_observation[i]);
   }
+
+#if (ENERGEST_CONF_ON == 1)
+  energest_flush();
+  LOG_INFO("Get_measurement start ");
+  printf("E_CPU %llu E_LPM %llu E_DEEP_LPM %llu E_TX %llu E_RX %llu E_Total: %llu\n",
+    energest_type_time(ENERGEST_TYPE_CPU), energest_type_time(ENERGEST_TYPE_LPM), energest_type_time(ENERGEST_TYPE_DEEP_LPM),
+    energest_type_time(ENERGEST_TYPE_TRANSMIT), energest_type_time(ENERGEST_TYPE_LISTEN), ENERGEST_GET_TOTAL_TIME());
+#endif /* ENERGEST_CONF_ON */
 
   //Make prediction
   //Call the algorithm

@@ -30,5 +30,5 @@
  */
 /*---------------------------------------------------------------------------*/
 /* Enable MQTT client extensions */
-#define MQTT_CLIENT_CONF_WITH_EXTENSIONS 1
+#define MQTT_CLIENT_CONF_WITH_EXTENSIONS 0
 /*---------------------------------------------------------------------------*/
