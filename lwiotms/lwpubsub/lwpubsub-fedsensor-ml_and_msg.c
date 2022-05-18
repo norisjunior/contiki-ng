@@ -1954,9 +1954,8 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
 
       #if (ENERGEST_CONF_ON == 1)
         energest_flush();
-        LOG_INFO("MLModel 32001 finish %d sensors");
+        LOG_INFO("MLModel 32001 finish %d sensors ", sensorsNumber);
         printf("E_CPU %llu E_LPM %llu E_DEEP_LPM %llu E_TX %llu E_RX %llu E_Total: %llu\n",
-          sensorsNumber,
           energest_type_time(ENERGEST_TYPE_CPU), energest_type_time(ENERGEST_TYPE_LPM), energest_type_time(ENERGEST_TYPE_DEEP_LPM),
           energest_type_time(ENERGEST_TYPE_TRANSMIT), energest_type_time(ENERGEST_TYPE_LISTEN), ENERGEST_GET_TOTAL_TIME());
       #endif /* ENERGEST_CONF_ON */
@@ -2098,15 +2097,16 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
 
         #if (ENERGEST_CONF_ON == 1)
           energest_flush();
-          LOG_INFO("MLModel %d setup finish ", ml_model);
+          LOG_INFO("MLModel %d setup finish %d classes ", ml_model, number_of_classes);
           printf("E_CPU %llu E_LPM %llu E_DEEP_LPM %llu E_TX %llu E_RX %llu E_Total: %llu\n",
             energest_type_time(ENERGEST_TYPE_CPU), energest_type_time(ENERGEST_TYPE_LPM), energest_type_time(ENERGEST_TYPE_DEEP_LPM),
             energest_type_time(ENERGEST_TYPE_TRANSMIT), energest_type_time(ENERGEST_TYPE_LISTEN), ENERGEST_GET_TOTAL_TIME());
         #endif /* ENERGEST_CONF_ON */
 
-
-
         return;
+
+
+
 
     } else if( (strncmp(objectID, "32106", 5) == 0) ) {
           LOG_INFO("-------------------- FedSensor - LWPubSub[LWAIoT - K-means] --------------------\n");
@@ -2167,7 +2167,7 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
           LOG_INFO("--------------------------------------------------------------------------------\n");
           #if (ENERGEST_CONF_ON == 1)
             energest_flush();
-            LOG_INFO("MLModel %d setup finish ", ml_model);
+            LOG_INFO("MLModel %d setup finish %d centroids ", ml_model, number_of_centroids);
             printf("E_CPU %llu E_LPM %llu E_DEEP_LPM %llu E_TX %llu E_RX %llu E_Total: %llu\n",
               energest_type_time(ENERGEST_TYPE_CPU), energest_type_time(ENERGEST_TYPE_LPM), energest_type_time(ENERGEST_TYPE_DEEP_LPM),
               energest_type_time(ENERGEST_TYPE_TRANSMIT), energest_type_time(ENERGEST_TYPE_LISTEN), ENERGEST_GET_TOTAL_TIME());
@@ -2200,8 +2200,8 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
         } else {
           LOG_ERR("--Wrong command--\n");
         }
-      } else if(strncmp(instanceID, "1", 1) == 0) { //LED verde {
 
+      } else if(strncmp(instanceID, "1", 1) == 0) { //LED verde {
         if(strncmp(commandReceived, "1", 1) == 0) {
           LOG_INFO("CommandReceived type execute - green led (3311 1)\n");
           printf("\n> GREEN Led On <\n\n");
@@ -2213,13 +2213,27 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
         } else {
           LOG_ERR("--Wrong command--\n");
         }
+
+      } else if(strncmp(instanceID, "2", 1) == 0) { //LED azul {
+        if(strncmp(commandReceived, "1", 1) == 0) {
+          LOG_INFO("CommandReceived type execute - blue led (3311 2)\n");
+          printf("\n> BLUE Led On <\n\n");
+          leds_on(LEDS_BLUE);
+        } else if(strncmp(commandReceived, "0", 1) == 0) {
+          LOG_INFO("CommandReceived type execute - blue led (3311 2)\n");
+          printf("\n> BLUE Led Off <\n\n");
+          leds_off(LEDS_BLUE);
+        } else {
+          LOG_ERR("--Wrong command--\n");
+        }
+
       } else {
-        LOG_ERR("Only leds: instanceID 0 - Red and instanceID 1 - Green\n");
+        LOG_ERR("Only leds: instanceID 0 - Red, instanceID 1 - Green, and instanceID 2 - Blue\n");
       }
 //3311 - End
 
 //3338 - Start
-} else if(strncmp(objectID, "03338", 5) == 0) { //IPSO Buzzer/Alarm
+    } else if(strncmp(objectID, "03338", 5) == 0) { //IPSO Buzzer/Alarm
       if(strncmp(instanceID, "0", 1) == 0) { //The only buzzer in Sensortag
         if(strncmp(commandReceived, "1", 1) == 0) {
           LOG_INFO("CommandReceived type execute - buzzer (03338)\n");
