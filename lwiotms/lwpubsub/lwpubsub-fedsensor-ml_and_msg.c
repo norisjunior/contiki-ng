@@ -2266,7 +2266,7 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
           LOG_INFO("Publish from commandReceived started\n");
           publish_from_command = 1;
 #if BOARD_SENSORTAG
-          init_tmp_reading();
+          init_tmp_reading(NULL);
 #endif
           publish(1); //1 = is measurement
           LOG_INFO("Publish from commandReceived finished\n");
@@ -2287,7 +2287,7 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
           LOG_INFO("Publish from commandReceived started\n");
           publish_from_command = 1;
 #if BOARD_SENSORTAG
-          init_hdc_reading();
+          init_hdc_reading(NULL);
 #endif
           publish(1); //1 = is measurement
           LOG_INFO("Publish from commandReceived finished\n");
