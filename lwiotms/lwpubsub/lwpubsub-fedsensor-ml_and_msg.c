@@ -293,9 +293,18 @@ static int number_of_classes = 0;
 
 // Get measurements
 #if BOARD_SENSORTAG
+#define SENSOR_READING_PERIOD (CLOCK_SECOND * 20)
+#define SENSOR_READING_RANDOM (CLOCK_SECOND << 4)
+
+static struct ctimer tmp_timer, hdc_timer, mpu_timer;
+
+static void init_tmp_reading(void *not_used);
+static void init_hdc_reading(void *not_used);
+static void init_mpu_reading(void *not_used);
+
 #define HDC_1000_READING_ERROR    CC26XX_SENSOR_READING_ERROR
 #define TMP_007_READING_ERROR     CC26XX_SENSOR_READING_ERROR
-static int temp_measurement = 0;
+static int value_measurement = 0;
 
 /*---------------------------------------------------------------------------*/
 static void
@@ -313,47 +322,59 @@ static void
 get_tmp_reading()
 {
 
-  temp_measurement = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_ALL);
+  clock_time_t next = SENSOR_READING_PERIOD +
+    (random_rand() % SENSOR_READING_RANDOM);
 
-  if(temp_measurement == TMP_007_READING_ERROR) {
-    printf("TMP: Ambient Read Error\n");
-    return;
-  }
 
-  temp_measurement = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_AMBIENT);
-  printf("TMP: Ambient=%d.%03d C\n", temp_measurement / 1000, temp_measurement % 1000);
+    value_measurement = hdc_1000_sensor.value(HDC_1000_SENSOR_TYPE_TEMP);
+    if(value_measurement != HDC_1000_READING_ERROR) {
+      printf("HDC: Temp=%d.%02d C\n", value_measurement / 100, value_measurement % 100);
+    } else {
+      printf("HDC: Temp Read Error\n");
+    }
+
+  // value_measurement = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_ALL);
+  //
+  // if(value_measurement == TMP_007_READING_ERROR) {
+  //   printf("TMP: Ambient Read Error\n");
+  //   return;
+  // }
+  //
+  // value_measurement = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_AMBIENT);
+  // printf("TMP: Ambient=%d.%03d C\n", value_measurement / 1000, value_measurement % 1000);
 
   // value = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_OBJECT);
   // printf("TMP: Object=%d.%03d C\n", value / 1000, value % 1000);
 
-  SENSORS_DEACTIVATE(tmp_007_sensor);
+  // SENSORS_DEACTIVATE(tmp_007_sensor);
+
+  ctimer_set(&tmp_timer, next, init_tmp_reading, NULL);
 }
 /*---------------------------------------------------------------------------*/
-// static void
-// get_hdc_reading()
-// {
-//   int value;
+static void
+get_hdc_reading()
+{
+  clock_time_t next = SENSOR_READING_PERIOD +
+    (random_rand() % SENSOR_READING_RANDOM);
 
-//   value = hdc_1000_sensor.value(HDC_1000_SENSOR_TYPE_TEMP);
-//   if(value != HDC_1000_READING_ERROR) {
-//     printf("HDC: Temp=%d.%02d C\n", value / 100, value % 100);
-//   } else {
-//     printf("HDC: Temp Read Error\n");
-//   }
+  value_measurement = hdc_1000_sensor.value(HDC_1000_SENSOR_TYPE_HUMID);
+  if(value_measurement != HDC_1000_READING_ERROR) {
+    printf("HDC: Humidity=%d.%02d %%RH\n", value_measurement / 100, value_measurement % 100);
+  } else {
+    printf("HDC: Humidity Read Error\n");
+  }
 
-//   value = hdc_1000_sensor.value(HDC_1000_SENSOR_TYPE_HUMID);
-//   if(value != HDC_1000_READING_ERROR) {
-//     printf("HDC: Humidity=%d.%02d %%RH\n", value / 100, value % 100);
-//   } else {
-//     printf("HDC: Humidity Read Error\n");
-//   }
+  ctimer_set(&hdc_timer, next, init_hdc_reading, NULL);
 
-// }
+}
 /*---------------------------------------------------------------------------*/
 static void
 get_mpu_reading()
 {
   int value;
+
+  clock_time_t next = SENSOR_READING_PERIOD +
+    (random_rand() % SENSOR_READING_RANDOM);
 
   printf("MPU Gyro: X=");
   value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_GYRO_X);
@@ -389,22 +410,25 @@ get_mpu_reading()
   new_observation[2] = value;
 
   SENSORS_DEACTIVATE(mpu_9250_sensor);
+
+  ctimer_set(&mpu_timer, next, init_mpu_reading, NULL);
 }
 /*---------------------------------------------------------------------------*/
 static void
-init_tmp_reading()
+init_tmp_reading(void *not_used)
 {
-  SENSORS_ACTIVATE(tmp_007_sensor);
+  // SENSORS_ACTIVATE(tmp_007_sensor);
+  SENSORS_ACTIVATE(hdc_1000_sensor);
 }
 /*---------------------------------------------------------------------------*/
-// static void
-// init_hdc_reading(void *not_used)
-// {
-//   SENSORS_ACTIVATE(hdc_1000_sensor);
-// }
+static void
+init_hdc_reading(void *not_used)
+{
+  SENSORS_ACTIVATE(hdc_1000_sensor);
+}
 /*---------------------------------------------------------------------------*/
 static void
-init_mpu_reading()
+init_mpu_reading(void *not_used)
 {
   mpu_9250_sensor.configure(SENSORS_ACTIVE, MPU_9250_SENSOR_TYPE_ALL);
 }
@@ -644,12 +668,11 @@ static void parsePayload(uint8_t* mqttPayload, int mqttPayload_len)
 
 #if BOARD_SENSORTAG
   if(strncmp(objectID, "03303", 5) == 0) { //commandReceived request measurement
-    init_tmp_reading();
+    LOG_INFO(" - Pediu temperatura - \n");
   }
-
-  // if(strncmp(objectID, "03304", 5) == 0) { //commandReceived request measurement
-  //   init_hdc_reading();
-  // }
+  if(strncmp(objectID, "03304", 5) == 0) { //commandReceived request measurement
+    LOG_INFO(" - Pediu umidade - \n");
+  }
 #endif
 
 }
@@ -707,8 +730,8 @@ static void parse32001()
   }
 
 #if BOARD_SENSORTAG
-  if ( (sensorList[0] == 33130) && (sensorList[0] == 33131) && (sensorList[0] == 33132) ) { //real accelerometer data
-    init_mpu_reading();
+  if ( (sensorList[0] == 33130) && (sensorList[1] == 33131) && (sensorList[2] == 33132) ) { //real accelerometer data
+    init_mpu_reading(NULL);
   }
 #endif
 
@@ -1183,7 +1206,7 @@ static float read_33259()
 /*---------------------------------------------------------------------------*/
 //reduzir tamanho da RAM
 //PROCESS(mqtt_client_process, "LWPubSub-FedSensor-LWAIoT - MQTT client process");
-PROCESS(mqtt_client_process, "Oi");
+PROCESS(mqtt_client_process, "LWPubSub-FedSensor");
 /*---------------------------------------------------------------------------*/
 static bool
 have_connectivity(void)
@@ -1248,8 +1271,8 @@ publish(int is_measurement)
 {
 
 #if BOARD_SENSORTAG
-  if ( (sensorList[0] == 33130) && (sensorList[0] == 33131) && (sensorList[0] == 33132) ) { //real accelerometer data
-    init_mpu_reading();
+  if ( (sensorList[0] == 33130) && (sensorList[1] == 33131) && (sensorList[2] == 33132) ) { //real accelerometer data
+    init_mpu_reading(NULL);
   }
 #endif
 
@@ -1348,7 +1371,8 @@ publish(int is_measurement)
   }
 
 #if BOARD_SENSORTAG
-  if ( (sensorList[0] == 33130) && (sensorList[0] == 33131) && (sensorList[0] == 33132) ) { //real accelerometer data
+  if ( (sensorList[0] == 33130) && (sensorList[1] == 33131) && (sensorList[2] == 33132) ) { //real accelerometer data
+    LOG_INFO("- Get MPU reading - \n");
     get_mpu_reading();
   }
 #endif
@@ -1409,11 +1433,37 @@ publish(int is_measurement)
     buf_ptr = app_buffer;
 
     //LWPubSub - Experiment uses only temperature objectID/instanceID
-    if(LWPUBSUB_IS_ENCRYPTED) {
-      len = snprintf(buf_ptr, remaining, "33030|");
-    } else {
-      len = snprintf(buf_ptr, remaining, "033030|");
+    // if(LWPUBSUB_IS_ENCRYPTED) {
+    //   len = snprintf(buf_ptr, remaining, "33030|");
+    // } else {
+    //   len = snprintf(buf_ptr, remaining, "033030|");
+    // }
+
+    len = snprintf(buf_ptr, remaining, objectID);
+
+    if(len < 0 || len >= remaining) {
+      LOG_ERR("Buffer too short. Have %d, need %d + \\0\n", remaining,
+              len);
+      return;
     }
+
+    remaining -= len;
+    buf_ptr += len;
+    payload_size += len;
+
+    len = snprintf(buf_ptr, remaining, instanceID);
+
+    if(len < 0 || len >= remaining) {
+      LOG_ERR("Buffer too short. Have %d, need %d + \\0\n", remaining,
+              len);
+      return;
+    }
+
+    remaining -= len;
+    buf_ptr += len;
+    payload_size += len;
+
+    len = snprintf(buf_ptr, remaining, "|");
 
     if(len < 0 || len >= remaining) {
       LOG_ERR("Buffer too short. Have %d, need %d + \\0\n", remaining,
@@ -1435,8 +1485,7 @@ publish(int is_measurement)
     // }
 
 #if BOARD_SENSORTAG
-    get_tmp_reading();
-    len = snprintf(buf_ptr, remaining, "%d.%03d", temp_measurement / 1000, temp_measurement % 1000);
+    len = snprintf(buf_ptr, remaining, "%d.%02d", value_measurement / 100, value_measurement % 100);
 #else
     len = snprintf(buf_ptr, remaining, "%d.%d", (10+rand()%10), (rand()%10));
 #endif
@@ -2147,6 +2196,7 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
           /* Fire publish from here! */
           LOG_INFO("Publish from commandReceived started\n");
           publish_from_command = 1;
+          get_tmp_reading();
           publish(1); //1 = is measurement
           LOG_INFO("Publish from commandReceived finished\n");
         } else {
@@ -2156,6 +2206,25 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
         LOG_ERR("Only one temperature instance implemented - instanceID 0\n");
       }
 //3303 - End
+
+//3304 - Start
+} else if(strncmp(objectID, "03304", 5) == 0) { //commandReceived request measurement
+      if(strncmp(instanceID, "0", 1) == 0) { //The only temperature instance implemented
+        if(strncmp(commandReceived, "0", 1) == 0) { //empty data
+          LOG_INFO("CommandReceived type request - humidity (03304)\n");
+          /* Fire publish from here! */
+          LOG_INFO("Publish from commandReceived started\n");
+          publish_from_command = 1;
+          get_hdc_reading();
+          publish(1); //1 = is measurement
+          LOG_INFO("Publish from commandReceived finished\n");
+        } else {
+          LOG_ERR("--Wrong commandReceived--\n");
+        }
+      } else {
+        LOG_ERR("Only one humidity instance implemented - instanceID 0\n");
+      }
+//3304 - End
 
     } else {
       //LOG_ERR("Not implemented other objectID different than 03311 (led), 03338 (buzzer) and 03303 (temperature)!\n");
@@ -2671,6 +2740,19 @@ init_extensions(void)
   }
 }
 /*---------------------------------------------------------------------------*/
+static void
+init_sensor_readings(void)
+{
+#if BOARD_SENSORTAG
+  SENSORS_ACTIVATE(hdc_1000_sensor);
+  SENSORS_ACTIVATE(tmp_007_sensor);
+  SENSORS_ACTIVATE(opt_3001_sensor);
+  SENSORS_ACTIVATE(bmp_280_sensor);
+
+  init_mpu_reading(NULL);
+#endif
+}
+/*---------------------------------------------------------------------------*/
 PROCESS_THREAD(mqtt_client_process, ev, data)
 {
 
@@ -2731,6 +2813,8 @@ PROCESS_THREAD(mqtt_client_process, ev, data)
   }
 
   init_extensions();
+
+  init_sensor_readings();
 
   update_config();
 
