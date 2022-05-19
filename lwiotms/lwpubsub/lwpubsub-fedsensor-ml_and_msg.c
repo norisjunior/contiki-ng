@@ -395,19 +395,28 @@ get_mpu_reading()
   value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_X);
   print_mpu_reading(value);
   printf(" G\n");
-  new_observation[0] = value;
+  if(value < 0) {
+    value = -value;
+  }
+  new_observation[0] = value/100 + value%100;
 
   printf("MPU Acc: Y=");
   value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_Y);
   print_mpu_reading(value);
   printf(" G\n");
-  new_observation[1] = value;
+  if(value < 0) {
+    value = -value;
+  }
+  new_observation[1] = value/100 + value%100;
 
   printf("MPU Acc: Z=");
   value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_Z);
   print_mpu_reading(value);
   printf(" G\n");
-  new_observation[2] = value;
+  if(value < 0) {
+    value = -value;
+  }
+  new_observation[2] = value/100 + value%100;
 
   SENSORS_DEACTIVATE(mpu_9250_sensor);
 
