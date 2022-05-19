@@ -254,7 +254,6 @@ static char hashtag[2] = "#";
 static char dois[2] = "2";
 static char valuereceived[10];
 
-static char temp[3];
 
 
 /* Variable used to inform publish() to do not print energest values When
@@ -271,6 +270,7 @@ static int sensorsNumber = 0;
 static unsigned long sensorList[10]; //33250\0
 static int polling_interval = 0;
 static float new_observation[10]; //{30.39, 89.86, 0.86, 42.86, 0.0, 0.0, 0.0, 0.0, 0.0};
+static char temp[4]; //para guardar a action
 static int action = 0;
 
 // static int MODEL_IN_USE = 0;
@@ -286,7 +286,9 @@ static float bias[10];
 static float weights[10][10]; // são 10 linhas de 10 colunas com valores float
 static int number_of_classes = 0;
 
-
+/*For linreg*/
+static float lin_bias = 0.0;
+static float lin_weights[10];
 
 
 
@@ -709,14 +711,14 @@ static void parsePayload(uint8_t* mqttPayload, int mqttPayload_len)
 
 static void parse32001()
 {
-  //commandReceived:  10;1|033250;2|033251;3|033252;4|033253"
-  char time_interval[3];
+  //commandReceived:  100;1|033250;2|033251;3|033252;4|033253"
+  char time_interval[4]; //até 999
   int i = 0;
   int j = 0;
 
   //*******************************************************************
   //Preencher intervalo de tempo
-  for (i = 0; i < 2; i++) {
+  for (i = 0; i < 3; i++) {
     time_interval[i] = commandReceived[i];
   }
   time_interval[i] = '\0';
@@ -764,6 +766,59 @@ static void parse32001()
 #endif
 
 }
+
+
+static void linreg_predict()
+{
+  LOG_INFO("-------------------------- Linear Regression predict ---------------------------\n");
+  #if (ENERGEST_CONF_ON == 1)
+    energest_flush();
+    LOG_INFO("MLModel %d predict start ", ml_model);
+    printf("E_CPU %llu E_LPM %llu E_DEEP_LPM %llu E_TX %llu E_RX %llu E_Total: %llu\n",
+      energest_type_time(ENERGEST_TYPE_CPU), energest_type_time(ENERGEST_TYPE_LPM), energest_type_time(ENERGEST_TYPE_DEEP_LPM),
+      energest_type_time(ENERGEST_TYPE_TRANSMIT), energest_type_time(ENERGEST_TYPE_LISTEN), ENERGEST_GET_TOTAL_TIME());
+  #endif /* ENERGEST_CONF_ON */
+
+  int n = 0; //índice do número de sensores (linhas dos weights)
+  float result = 0.0; // para armazenar a multiplicação de new_observation[n] * weights[m][n]
+
+  for (n = 0; n < sensorsNumber; n++) {
+    result += new_observation[n] * lin_weights[n];
+  }
+
+  result += lin_bias;
+
+  LOG_INFO("Result: %.4f", result);
+
+  if ((int)result > action) {
+    LOG_INFO("A-L-E-R-T-A!\n");
+    leds_on(LEDS_RED);
+    #if BOARD_SENSORTAG
+      buzzer_start(1000);
+    #endif
+  } else {
+    LOG_INFO("Good condition. Result = %d, action = %d\n", (int)result, action);
+    leds_off(LEDS_RED);
+    #if BOARD_SENSORTAG
+      if(buzzer_state()) {
+        buzzer_stop();
+      }
+    #endif
+  }
+
+  LOG_INFO("---------------------------------------------------------------------------\n");
+  #if (ENERGEST_CONF_ON == 1)
+    energest_flush();
+    LOG_INFO("MLModel %d predict finish ", ml_model);
+    printf("E_CPU %llu E_LPM %llu E_DEEP_LPM %llu E_TX %llu E_RX %llu E_Total: %llu\n",
+      energest_type_time(ENERGEST_TYPE_CPU), energest_type_time(ENERGEST_TYPE_LPM), energest_type_time(ENERGEST_TYPE_DEEP_LPM),
+      energest_type_time(ENERGEST_TYPE_TRANSMIT), energest_type_time(ENERGEST_TYPE_LISTEN), ENERGEST_GET_TOTAL_TIME());
+  #endif /* ENERGEST_CONF_ON */
+}
+
+
+
+
 
 
 
@@ -1443,6 +1498,12 @@ publish(int is_measurement)
 
 
   switch(strtol(objectID, NULL, 10)) {
+
+      case 32102: {
+        linreg_predict();
+        break;
+      }
+
       case 32103: {
         logreg_predict();
         break;
@@ -1493,7 +1554,7 @@ publish(int is_measurement)
     //   len = snprintf(buf_ptr, remaining, "033030|");
     // }
 
-    len = snprintf(buf_ptr, remaining, objectID);
+    len = snprintf(buf_ptr, remaining, "%s", objectID);
 
     if(len < 0 || len >= remaining) {
       LOG_ERR("Buffer too short. Have %d, need %d + \\0\n", remaining,
@@ -1505,7 +1566,7 @@ publish(int is_measurement)
     buf_ptr += len;
     payload_size += len;
 
-    len = snprintf(buf_ptr, remaining, instanceID);
+    len = snprintf(buf_ptr, remaining, "%s", instanceID);
 
     if(len < 0 || len >= remaining) {
       LOG_ERR("Buffer too short. Have %d, need %d + \\0\n", remaining,
@@ -1927,8 +1988,8 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
 
 
     //*******************************************************************
-    //Preencher action
-    for (i = 0; i < 2; i++) {
+    //Preencher action - sempre passando 3 casas inteiras
+    for (i = 0; i < 3; i++) {
       temp[i] = commandReceived[i];
     }
     //printf("\n\ni do action: %d\n\n", i);
@@ -1966,6 +2027,94 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
       //parse32002(commandReceived);
       return;
 
+
+
+
+
+
+
+
+    } else if( (strncmp(objectID, "32102", 5) == 0) ) {
+        LOG_INFO("--------------- FedSensor - LWPubSub[LWAIoT - Linear regression] ---------------\n");
+        #if (ENERGEST_CONF_ON == 1)
+          energest_flush();
+          LOG_INFO("MLModel %d setup start ", ml_model);
+          printf("E_CPU %llu E_LPM %llu E_DEEP_LPM %llu E_TX %llu E_RX %llu E_Total: %llu\n",
+            energest_type_time(ENERGEST_TYPE_CPU), energest_type_time(ENERGEST_TYPE_LPM), energest_type_time(ENERGEST_TYPE_DEEP_LPM),
+            energest_type_time(ENERGEST_TYPE_TRANSMIT), energest_type_time(ENERGEST_TYPE_LISTEN), ENERGEST_GET_TOTAL_TIME());
+        #endif /* ENERGEST_CONF_ON */
+
+        //Mensagem:
+        //"250;1|16.0126;2|0.8444#0.4488#8.0331#0.2608"
+        int n = 0;
+        lin_bias = 0.0;
+        for (n = 0; n < 10; n++) {
+            lin_weights[n] = 0.0;
+        }
+        n = 0;
+
+        i = 0;
+        j = 0;
+        for (i = 6; i < commandReceivedlen; i++) {
+          if ( (commandReceived[i] != pipe[0]) && (commandReceived[i] != semic[0]) && (commandReceived[i-1] != semic[0]) && (commandReceived[i] != hashtag[0]) ) {
+              //printf("\ncommandReceived[%d]: %c", i, commandReceived[i]);
+              valuereceived[j] = commandReceived[i];
+              j++;
+              //printf("valuereceived[%d]: %s\n", j, valuereceived);
+          }
+
+          if ( commandReceived[i] == semic[0] ) { //passou por um ponto e vírgula e, independentemente de ser o primeiro ou não, não é mais bias
+              lin_bias = strtof(valuereceived, NULL);
+              //printf("bias: %.4f\n", lin_bias);
+              memset(valuereceived, 0, 10);
+              valuereceived[9] = '\0';
+              j = 0;
+          }
+
+          if ( (commandReceived[i] == hashtag[0]) || (i == commandReceivedlen-1) ) { //armazena o valor
+              lin_weights[n] = strtof(valuereceived, NULL);
+              printf("lin_weights[%d]: %.4f\n", n, lin_weights[n]);
+              n++;
+              j = 0;
+              memset(valuereceived, 0, 10);
+              valuereceived[9] = '\0';
+          }
+
+        }
+
+        LOG_INFO("Maximum acceptable value: %d\n", action);
+
+        LOG_INFO("Bias: [%.4f] ", lin_bias);
+
+        //sensorsNumber = 4; //only for testing!
+        LOG_INFO_("\n");
+        LOG_INFO("Vetor de weights:");
+        for (int j = 0; j < sensorsNumber; j++ ) {
+          LOG_INFO_("[%.4f] ", lin_weights[j]);
+        }
+        LOG_INFO_("\n");
+        LOG_INFO("--------------------------------------------------------------------------------\n");
+
+        #if (ENERGEST_CONF_ON == 1)
+          energest_flush();
+          LOG_INFO("MLModel %d setup finish %d value ", ml_model, action);
+          printf("E_CPU %llu E_LPM %llu E_DEEP_LPM %llu E_TX %llu E_RX %llu E_Total: %llu\n",
+            energest_type_time(ENERGEST_TYPE_CPU), energest_type_time(ENERGEST_TYPE_LPM), energest_type_time(ENERGEST_TYPE_DEEP_LPM),
+            energest_type_time(ENERGEST_TYPE_TRANSMIT), energest_type_time(ENERGEST_TYPE_LISTEN), ENERGEST_GET_TOTAL_TIME());
+        #endif /* ENERGEST_CONF_ON */
+
+        return;
+
+
+
+
+
+
+
+
+
+
+
     } else if( (strncmp(objectID, "32103", 5) == 0) ) {
         LOG_INFO("-------------- FedSensor - LWPubSub[LWAIoT - Logistic regression] --------------\n");
         #if (ENERGEST_CONF_ON == 1)
@@ -1980,7 +2129,7 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
         //*******************************************************************
 
         //Mensagem:
-        //02;1|10.8151#1.4182#-12.2333;2|-0.0636#-0.0477#-1.0038#-0.0266;3|-0.0156#0.0121#0.1495#0.0092;4|0.0792#0.0356#0.8543#0.0174
+        //002;1|10.8151#1.4182#-12.2333;2|-0.0636#-0.0477#-1.0038#-0.0266;3|-0.0156#0.0121#0.1495#0.0092;4|0.0792#0.0356#0.8543#0.0174
 
         //instanceID 1 é o bias
         //1|10.8151#1.4182#-12.2333 ->    classe 0: [10.8151]    classe 1: [1.4182]    classe 2: [-12.2333]
@@ -2018,13 +2167,13 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
         n = 0;
 
 
-        //i começa em 5, porque passa o action e o índice do bias (que é 1)
-        //02;1|10.8151#1.4182#-12.2333;2|-0.0636#-0.0477#-1.0038#-0.0266;3|-0.0156#0.0121#0.1495#0.0092;4|0.0792#0.0356#0.8543#0.0174
+        //i começa em 6, porque passa o action e o índice do bias (que é 1)
+        //002;1|10.8151#1.4182#-12.2333;2|-0.0636#-0.0477#-1.0038#-0.0266;3|-0.0156#0.0121#0.1495#0.0092;4|0.0792#0.0356#0.8543#0.0174
 
         //is_bias = 1; //já começo no bias no byte 5
         i = 0;
         j = 0; // controla o índice do valor a ser recebido no char valuereceived[] que será valuereceived[j], o certo é não usar a variável column
-        for (i = 5; i < commandReceivedlen; i++) {
+        for (i = 6; i < commandReceivedlen; i++) {
           //if  ( (strncmp(commandReceived[i], "1", 1) == 0) && (commandReceived[i-1] == semic[0]) && (commandReceived[i+1] == pipe[0]) ) {
           //É instanceID 1, e não qualquer número 1 então preencher o bias
 
@@ -2108,6 +2257,16 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
 
 
 
+
+
+
+
+
+
+
+
+
+
     } else if( (strncmp(objectID, "32106", 5) == 0) ) {
           LOG_INFO("-------------------- FedSensor - LWPubSub[LWAIoT - K-means] --------------------\n");
           #if (ENERGEST_CONF_ON == 1)
@@ -2134,7 +2293,7 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
           number_of_centroids = 0;
           memset(centroids, 0, sizeof(centroids));
 
-          for (i = 5; i < commandReceivedlen; i++) {
+          for (i = 6; i < commandReceivedlen; i++) {
             if ( (commandReceived[i] != pipe[0]) && (commandReceived[i] != semic[0]) && (commandReceived[i-1] != semic[0]) && (commandReceived[i] != hashtag[0]) ) {
               valuereceived[m] = commandReceived[i];
               m++;
