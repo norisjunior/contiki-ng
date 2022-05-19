@@ -376,47 +376,38 @@ get_mpu_reading()
   clock_time_t next = SENSOR_READING_PERIOD +
     (random_rand() % SENSOR_READING_RANDOM);
 
-  printf("MPU Gyro: X=");
+  // printf("MPU Gyro: X=");
   value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_GYRO_X);
-  print_mpu_reading(value);
-  printf(" deg/sec\n");
+  // print_mpu_reading(value);
+  // printf(" deg/sec\n");
 
-  printf("MPU Gyro: Y=");
+  // printf("MPU Gyro: Y=");
   value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_GYRO_Y);
-  print_mpu_reading(value);
-  printf(" deg/sec\n");
+  // print_mpu_reading(value);
+  // printf(" deg/sec\n");
 
-  printf("MPU Gyro: Z=");
+  // printf("MPU Gyro: Z=");
   value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_GYRO_Z);
-  print_mpu_reading(value);
-  printf(" deg/sec\n");
+  // print_mpu_reading(value);
+  // printf(" deg/sec\n");
 
   printf("MPU Acc: X=");
   value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_X);
   print_mpu_reading(value);
   printf(" G\n");
-  if(value < 0) {
-    value = -value;
-  }
-  new_observation[0] = value/100 + value%100;
+  new_observation[0] = (float)value/100;
 
   printf("MPU Acc: Y=");
   value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_Y);
   print_mpu_reading(value);
   printf(" G\n");
-  if(value < 0) {
-    value = -value;
-  }
-  new_observation[1] = value/100 + value%100;
+  new_observation[1] = (float)value/100;
 
   printf("MPU Acc: Z=");
   value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_Z);
   print_mpu_reading(value);
   printf(" G\n");
-  if(value < 0) {
-    value = -value;
-  }
-  new_observation[2] = value/100 + value%100;
+  new_observation[2] = (float)value/100;
 
   SENSORS_DEACTIVATE(mpu_9250_sensor);
 
