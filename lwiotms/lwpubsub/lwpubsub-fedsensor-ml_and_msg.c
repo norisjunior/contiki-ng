@@ -788,7 +788,7 @@ static void linreg_predict()
 
   result += lin_bias;
 
-  LOG_INFO("Result: %.4f", result);
+  LOG_INFO("Result: %.4f - %d\n", result, (int)result);
 
   if ((int)result > action) {
     LOG_INFO("A-L-E-R-T-A!\n");
