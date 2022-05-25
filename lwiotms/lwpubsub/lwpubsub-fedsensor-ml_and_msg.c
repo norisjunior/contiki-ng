@@ -1122,6 +1122,26 @@ static float read_33132()
 }
 
 
+static float read_33460()
+{
+  //Dummy:
+  // 0 - start value (x_coord, y_coord, z_coord)
+  /*  10 times not falling (x_coord max 2)
+      1 time falling (class 0) ........: 3.5665, 0.8648, -0.3776
+      REPEAT
+  */
+    memset(sensor_value, 0, 10);
+    float value = 0.0;
+
+    snprintf(sensor_value, 10, "%d.%d", (99 + rand() / (RAND_MAX / (20 - 99 + 1) + 1)), (rand()%10000));
+    value = strtof(sensor_value, NULL);
+    //printf("sensor string: %s\n", sensor_value);
+    //printf("sensor float: %f\n", value);
+
+    return value;
+}
+
+
 static float read_33250()
 {
   //printf("\nRead 33250");
@@ -1458,6 +1478,11 @@ publish(int is_measurement)
 
         case 33259: {
           new_observation[i] = read_33259();
+          break;
+        }
+
+        case 33460: {
+          new_observation[i] = read_33460();
           break;
         }
 
