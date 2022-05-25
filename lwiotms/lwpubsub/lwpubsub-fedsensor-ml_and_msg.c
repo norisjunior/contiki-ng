@@ -728,10 +728,10 @@ static void parse32001()
   conf.pub_interval = (polling_interval * CLOCK_SECOND); //(LWPUBSUB_POLLFREQUENCY * CLOCK_SECOND)
   //*******************************************************************
 
-  sensorsNumber = ((commandReceivedlen - 2) / 9); //é o número de linhas da variável sensorList
+  sensorsNumber = ((commandReceivedlen - 3) / 9); //é o número de linhas da variável sensorList
 
-  char sensorsreceived[5][7]; // são 10 linhas de 7 caracteres cada linha: 6 caract. + \0
-  //memset(sensorsreceived, 0, sizeof(sensorsreceived));
+  char sensorsreceived[10][7]; // são 10 linhas de 7 caracteres cada linha: 6 caract. + \0
+  memset(sensorsreceived, 0, sizeof(sensorsreceived));
 
   // int line = 0;
   // int column = 0;
