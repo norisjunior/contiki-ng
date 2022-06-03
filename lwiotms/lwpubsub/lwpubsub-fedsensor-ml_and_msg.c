@@ -620,7 +620,7 @@ static char * _float_to_char(float x, char *p) {
 //static char metadata[20];
 static char objectID[6];
 static char instanceID[2];
-#define COMMAND_RECEIVED_BUFFER 300
+#define COMMAND_RECEIVED_BUFFER 500
 char commandReceived[COMMAND_RECEIVED_BUFFER];
 static int commandReceivedlen = 0;
 
