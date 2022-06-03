@@ -788,7 +788,7 @@ static void linreg_predict()
 
   result += lin_bias;
 
-  char reading[0] = "\0";
+  char reading[10] = "\0";
   LOG_INFO("Result: %.4f (float)  |  as string: %s\n", result, _float_to_char(result, reading));
 
   if ((int)result > action) {
@@ -859,7 +859,7 @@ static void kmeans_predict()
     }
     dist_euclid[i] = sqrtf(dist_euclid[i]);
 
-    char reading[0] = "\0";
+    char reading[10] = "\0";
     LOG_INFO("Dist_euclid[%d]: %.4f  |  as string: %s\n", i, dist_euclid[i], _float_to_char(dist_euclid[i], reading));
     // LOG_INFO_(" ---- as int: %d\n", (int)dist_euclid[i]);
 
@@ -973,7 +973,7 @@ static void logreg_predict()
     mult_values_weights[n] += bias[n];
   }
 
-  char reading[0] = "\0";
+  char reading[10] = "\0";
   LOG_INFO("Result of X*w + b: ");
   for (int i = 0; i < number_of_classes ; i++) {
     LOG_INFO_("[%.4f]  | as string: %s", mult_values_weights[i], _float_to_char(mult_values_weights[i], reading));
@@ -991,7 +991,8 @@ static void logreg_predict()
 
   for (n = 0; n < number_of_classes ; n++) {
     logreg_prob[n] = exp(mult_values_weights[n]) / exp_sum;
-    reading[0] = "\0";
+    // reading[0] = "\0";
+    memset(reading, 0, sizeof(reading));
     LOG_INFO("logreg_prob[%d]: %.4f  | as string: %s\n", n, logreg_prob[n], _float_to_char(logreg_prob[n], reading));
     //printf(" --- as int: %d.%d", (int)logreg_prob[n], ((int)(logreg_prob[n] * 1000)%1000));
     snprintf(fbuf, 14, "%g", logreg_prob[n]);
