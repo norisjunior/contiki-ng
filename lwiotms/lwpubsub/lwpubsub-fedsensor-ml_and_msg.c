@@ -696,11 +696,11 @@ static void parsePayload(uint8_t* mqttPayload, int mqttPayload_len)
 
 #if BOARD_SENSORTAG
   if(strncmp(objectID, "03303", 5) == 0) { //commandReceived request measurement
-    LOG_INFO(" - Pediu temperatura - \n");
+    LOG_INFO(" - Temperature request - \n");
     // init_tmp_reading();
   }
   if(strncmp(objectID, "03304", 5) == 0) { //commandReceived request measurement
-    LOG_INFO(" - Pediu umidade - \n");
+    LOG_INFO(" - Humidity request - \n");
     // init_hdc_reading();
   }
 #endif
@@ -788,16 +788,17 @@ static void linreg_predict()
 
   result += lin_bias;
 
-  LOG_INFO("Result: %.4f (float) - %d (int)\n", result, (int)result);
+  char reading[0] = "\0";
+  LOG_INFO("Result: %.4f (float)  |  as string: %s\n", result, _float_to_char(result, reading));
 
   if ((int)result > action) {
-    LOG_INFO("A-L-E-R-T-A!\n");
+    LOG_INFO("A-L-E-R-T!\n");
     leds_on(LEDS_RED);
     #if BOARD_SENSORTAG
       buzzer_start(1000);
     #endif
   } else {
-    LOG_INFO("Good condition. Result = %d, action = %d\n", (int)result, action);
+    LOG_INFO("Good condition. Result = %s, action = %d\n", _float_to_char(result, reading), action);
     leds_off(LEDS_RED);
     #if BOARD_SENSORTAG
       if(buzzer_state()) {
@@ -858,7 +859,8 @@ static void kmeans_predict()
     }
     dist_euclid[i] = sqrtf(dist_euclid[i]);
 
-    LOG_INFO("Dist_euclid[%d]: %.2f\n", i, dist_euclid[i]);
+    char reading[0] = "\0";
+    LOG_INFO("Dist_euclid[%d]: %.4f  |  as string: %s\n", i, dist_euclid[i], _float_to_char(dist_euclid[i], reading));
     // LOG_INFO_(" ---- as int: %d\n", (int)dist_euclid[i]);
 
   }
@@ -971,9 +973,10 @@ static void logreg_predict()
     mult_values_weights[n] += bias[n];
   }
 
-  LOG_INFO("Resultado de X*w + b: ");
+  char reading[0] = "\0";
+  LOG_INFO("Result of X*w + b: ");
   for (int i = 0; i < number_of_classes ; i++) {
-    LOG_INFO_("[%.4f] ", mult_values_weights[i]);
+    LOG_INFO_("[%.4f]  | as string: %s", mult_values_weights[i], _float_to_char(mult_values_weights[i], reading));
   }
   LOG_INFO_("\n");
 
@@ -988,7 +991,8 @@ static void logreg_predict()
 
   for (n = 0; n < number_of_classes ; n++) {
     logreg_prob[n] = exp(mult_values_weights[n]) / exp_sum;
-    LOG_INFO("logreg_prob[%d]: %.4f\n", n, logreg_prob[n]);
+    reading[0] = "\0";
+    LOG_INFO("logreg_prob[%d]: %.4f  | as string: %s\n", n, logreg_prob[n], _float_to_char(logreg_prob[n], reading));
     //printf(" --- as int: %d.%d", (int)logreg_prob[n], ((int)(logreg_prob[n] * 1000)%1000));
     snprintf(fbuf, 14, "%g", logreg_prob[n]);
     fbuf[14] = '\0';
@@ -1000,16 +1004,16 @@ static void logreg_predict()
     if (logreg_prob[n] > logreg_prob[logreg_class]) { logreg_class = n; }
   }
 
-  LOG_INFO("Classe: %d\n", logreg_class);
+  LOG_INFO("Class: %d\n", logreg_class);
 
   if (logreg_class == action) {
-    LOG_INFO("A-L-E-R-T-A!\n");
+    LOG_INFO("A-L-E-R-T!\n");
     leds_on(LEDS_RED);
     #if BOARD_SENSORTAG
       buzzer_start(1000);
     #endif
   } else {
-    LOG_INFO("Classe != ACTION; classe = %d, action = %d\n", logreg_class, action);
+    LOG_INFO("Class != ACTION; class = %d, action = %d\n", logreg_class, action);
     leds_off(LEDS_RED);
     #if BOARD_SENSORTAG
       if(buzzer_state()) {
