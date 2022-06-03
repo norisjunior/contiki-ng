@@ -984,7 +984,7 @@ static void logreg_predict()
   LOG_INFO("Result of X*w + b: ");
   for (int i = 0; i < number_of_classes ; i++) {
     char reading[10] = "\0";
-    LOG_INFO_("[%.4f]  | as string: %s", mult_values_weights[i], _float_to_char(mult_values_weights[i], reading));
+    LOG_INFO_("[%.4f  |  as string: %s]   ", mult_values_weights[i], _float_to_char(mult_values_weights[i], reading));
   }
   LOG_INFO_("\n");
 
@@ -1001,7 +1001,7 @@ static void logreg_predict()
     logreg_prob[n] = exp(mult_values_weights[n]) / exp_sum;
     // reading[0] = "\0";
     snprintf(fbuf, 14, "%g", logreg_prob[n]);
-    LOG_INFO("logreg_prob[%d]: %.4f  | as string: %s\n", n, logreg_prob[n], fbuf);
+    LOG_INFO("logreg_prob[%d]: %.4f  | as string: %s \n", n, logreg_prob[n], fbuf);
     //printf(" --- as int: %d.%d", (int)logreg_prob[n], ((int)(logreg_prob[n] * 1000)%1000));
     memset(fbuf, 0, sizeof(fbuf));
     // LOG_INFO_(" as string: %s\n", fbuf);
