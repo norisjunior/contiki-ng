@@ -2327,7 +2327,7 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
 
             if ( (commandReceived[i] == semic[0]) ) { //pula pra próxima linha
               centroids[line][column] = strtof(valuereceived, NULL);
-              LOG_INFO_("  -  [%d][%d]: %.2f\n", line, column, centroids[line][column]);
+              LOG_INFO_("[%d][%d]: %.4f\n", line, column, centroids[line][column]);
               line++;
               column = 0;
               m = 0;
@@ -2337,7 +2337,7 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
 
             if ( (commandReceived[i] == hashtag[0]) || (i == commandReceivedlen-1) ) { //pula pra próxima coluna
               centroids[line][column] = strtof(valuereceived, NULL);
-              LOG_INFO_("[%d][%d]: %.2f  -  ", line, column, centroids[line][column]);
+              LOG_INFO_("[%d][%d]: %.4f     ", line, column, centroids[line][column]);
               column++;
               m = 0;
               memset(valuereceived, 0, 10);
