@@ -848,6 +848,8 @@ static void kmeans_predict()
   //Preencher matriz, em que cada linha é um centróide
   float dist_euclid[10];
   float middle_result[10][10];
+  char reading[10];
+
 
   //sensorsNumber = 4; //only for testing!
 
@@ -866,8 +868,10 @@ static void kmeans_predict()
     }
     dist_euclid[i] = sqrtf(dist_euclid[i]);
 
-    char reading[10] = "\0";
-    LOG_INFO("Dist_euclid[%d]: %.4f  |  as string: %s\n", i, dist_euclid[i], _float_to_char(dist_euclid[i], reading));
+    LOG_INFO("Dist_euclid[%d]: %.4f  ", i, dist_euclid[i]);
+    LOG_INFO_("_  as string: %s\n", _float_to_char(dist_euclid[i], reading));
+    memset(reading, 0, sizeof(reading));
+
     // LOG_INFO_(" ---- as int: %d\n", (int)dist_euclid[i]);
 
   }
@@ -927,8 +931,10 @@ static void logreg_predict()
   float mult_values_weights[10]; // para armazenar a multiplicação de new_observation[n] * weights[m][n]
   float exp_sum = 0; //somatório de e (início do Softmax)
   float logreg_prob[10]; //armazena as probabilidades de cada classe
-  char fbuf[15]; //buffer para armazenar o valor de float para log
+  // char fbuf[15]; //buffer para armazenar o valor de float para log
   int logreg_class = 0; //armazena qual é a classe resultante da regressão logística
+  char reading[10];
+
 
 
 
@@ -980,11 +986,12 @@ static void logreg_predict()
     mult_values_weights[n] += bias[n];
   }
 
-
+  reading[0] = '\0';
   LOG_INFO("Result of X*w + b: ");
   for (int i = 0; i < number_of_classes ; i++) {
-    char reading[10] = "\0";
-    LOG_INFO_("[%.4f  |  as string: %s]   ", mult_values_weights[i], _float_to_char(mult_values_weights[i], reading));
+    LOG_INFO_("[%.4f   ", mult_values_weights[i]);
+    LOG_INFO_("_  as string: %s]   ", _float_to_char(mult_values_weights[i], reading));
+    memset(reading, 0, sizeof(reading));
   }
   LOG_INFO_("\n");
 
@@ -997,13 +1004,15 @@ static void logreg_predict()
   // LOG_INFO("EXP_SUM: %.4f", exp_sum);
   // LOG_INFO_(" -- as int: %d\n", (int)exp_sum);
 
+  reading[0] = '\0';
   for (n = 0; n < number_of_classes ; n++) {
     logreg_prob[n] = exp(mult_values_weights[n]) / exp_sum;
-    // reading[0] = "\0";
-    snprintf(fbuf, 14, "%g", logreg_prob[n]);
-    LOG_INFO("logreg_prob[%d]: %.4f  | as string: %s \n", n, logreg_prob[n], fbuf);
+    // snprintf(fbuf, 14, "%g", logreg_prob[n]);
+    LOG_INFO("logreg_prob[%d]: %.4f  ", n, logreg_prob[n]);
+    LOG_INFO("_ as string: %s \n", _float_to_char(logreg_prob[n], reading));
+    memset(reading, 0, sizeof(reading));
     //printf(" --- as int: %d.%d", (int)logreg_prob[n], ((int)(logreg_prob[n] * 1000)%1000));
-    memset(fbuf, 0, sizeof(fbuf));
+    // memset(fbuf, 0, sizeof(fbuf));
     // LOG_INFO_(" as string: %s\n", fbuf);
     // fbuf[0] = '\0'; //zera a variável fbuf
   }
