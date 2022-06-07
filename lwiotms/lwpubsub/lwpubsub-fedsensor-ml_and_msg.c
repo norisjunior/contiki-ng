@@ -788,6 +788,7 @@ static void linreg_predict()
 
   int n = 0; //índice do número de sensores (linhas dos weights)
   float result = 0.0; // para armazenar a multiplicação de new_observation[n] * weights[m][n]
+  char reading[10];
 
   for (n = 0; n < sensorsNumber; n++) {
     result += new_observation[n] * lin_weights[n];
@@ -795,8 +796,10 @@ static void linreg_predict()
 
   result += lin_bias;
 
-  char reading[10] = "\0";
-  LOG_INFO("Result: %.4f (float)  |  as string: %s\n", result, _float_to_char(result, reading));
+  LOG_INFO_("[%.4f   ", result);
+  LOG_INFO_("_  as string: %s]   ", _float_to_char(result, reading));
+  memset(reading, 0, sizeof(reading));
+  reading[0] = '\0';
 
   if ((int)result > action) {
     LOG_INFO("A-L-E-R-T!\n");
@@ -868,6 +871,7 @@ static void kmeans_predict()
     }
     dist_euclid[i] = sqrtf(dist_euclid[i]);
 
+    reading[0] = '\0';
     LOG_INFO("Dist_euclid[%d]: %.4f  ", i, dist_euclid[i]);
     LOG_INFO_("_  as string: %s\n", _float_to_char(dist_euclid[i], reading));
     memset(reading, 0, sizeof(reading));
@@ -986,12 +990,12 @@ static void logreg_predict()
     mult_values_weights[n] += bias[n];
   }
 
-  reading[0] = '\0';
   LOG_INFO("Result of X*w + b: ");
   for (int i = 0; i < number_of_classes ; i++) {
     LOG_INFO_("[%.4f   ", mult_values_weights[i]);
     LOG_INFO_("_  as string: %s]   ", _float_to_char(mult_values_weights[i], reading));
     memset(reading, 0, sizeof(reading));
+    reading[0] = '\0';
   }
   LOG_INFO_("\n");
 
@@ -1004,13 +1008,13 @@ static void logreg_predict()
   // LOG_INFO("EXP_SUM: %.4f", exp_sum);
   // LOG_INFO_(" -- as int: %d\n", (int)exp_sum);
 
-  reading[0] = '\0';
   for (n = 0; n < number_of_classes ; n++) {
     logreg_prob[n] = exp(mult_values_weights[n]) / exp_sum;
     // snprintf(fbuf, 14, "%g", logreg_prob[n]);
     LOG_INFO("logreg_prob[%d]: %.4f  ", n, logreg_prob[n]);
     LOG_INFO("_ as string: %s \n", _float_to_char(logreg_prob[n], reading));
     memset(reading, 0, sizeof(reading));
+    reading[0] = '\0';
     //printf(" --- as int: %d.%d", (int)logreg_prob[n], ((int)(logreg_prob[n] * 1000)%1000));
     // memset(fbuf, 0, sizeof(fbuf));
     // LOG_INFO_(" as string: %s\n", fbuf);
