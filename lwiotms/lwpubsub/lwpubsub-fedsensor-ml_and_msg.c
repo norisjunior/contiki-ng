@@ -871,10 +871,10 @@ static void kmeans_predict()
     }
     dist_euclid[i] = sqrtf(dist_euclid[i]);
 
-    reading[0] = '\0';
     LOG_INFO("Dist_euclid[%d]: %.4f  ", i, dist_euclid[i]);
     LOG_INFO_("_  as string: %s\n", _float_to_char(dist_euclid[i], reading));
     memset(reading, 0, sizeof(reading));
+    reading[0] = '\0';
 
     // LOG_INFO_(" ---- as int: %d\n", (int)dist_euclid[i]);
 
