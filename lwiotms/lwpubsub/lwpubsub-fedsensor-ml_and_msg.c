@@ -797,7 +797,7 @@ static void linreg_predict()
   result += lin_bias;
 
   LOG_INFO_("[%.4f   ", result);
-  LOG_INFO_("_  as string: %s]   ", _float_to_char(result, reading));
+  LOG_INFO_("_  as string: %s]   \n", _float_to_char(result, reading));
   memset(reading, 0, sizeof(reading));
   reading[0] = '\0';
 
