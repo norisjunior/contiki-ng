@@ -143,7 +143,6 @@
 
 
 #if BOARD_SENSORTAG || BOARD_LAUNCHPAD
-#define QUEUEBUF_CONF_NUM 4
 #define RF_BLE_CONF_ENABLED 0
 #define SET_CCFG_SIZE_AND_DIS_FLAGS_DIS_GPRAM        0x0 //disable cache and use the space as RAM
 #define RF_CONF_MODE    RF_MODE_2_4_GHZ //for launchpad
@@ -151,6 +150,12 @@
 
 //Reduce LPM modes on zoul. Never enter LPM 2, only 0 (no LPM) or 1
 #define LPM_CONF_MAX_PM   0
+
+//Saving RAM
+#define QUEUEBUF_CONF_NUM 4
+#define NBR_TABLE_CONF_MAX_NEIGHBORS 4
+#define NETSTACK_MAX_ROUTE_ENTRIES 4
+
 
 #define PROCESS_CONF_NO_PROCESS_NAMES 1
 
