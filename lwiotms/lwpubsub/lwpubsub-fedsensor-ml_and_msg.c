@@ -480,7 +480,7 @@ static char sub_topic[BUFFER_SIZE];
  * The main MQTT buffers.
  * We will need to increase if we start publishing more data.
  */
-#define APP_BUFFER_SIZE 512
+#define APP_BUFFER_SIZE 120
 static struct mqtt_connection conn;
 static char app_buffer[APP_BUFFER_SIZE];
 /*---------------------------------------------------------------------------*/
@@ -620,8 +620,8 @@ static char * _float_to_char(float x, char *p) {
 //static char metadata[20];
 static char objectID[6];
 static char instanceID[2];
-#define COMMAND_RECEIVED_BUFFER 500
-char commandReceived[COMMAND_RECEIVED_BUFFER];
+#define COMMAND_RECEIVED_BUFFER 650
+static char commandReceived[COMMAND_RECEIVED_BUFFER];
 static int commandReceivedlen = 0;
 
 
@@ -636,6 +636,7 @@ static void parsePayload(uint8_t* mqttPayload, int mqttPayload_len)
   //memset(objectID, 0, sizeof(objectID));
   //memset(instanceID, 0, sizeof(instanceID));
   memset(commandReceived, 0, COMMAND_RECEIVED_BUFFER);
+  commandReceived[0] = '\0';
 
   //strncpy(payload, (char *)mqttPayload, mqttPayload_len);
 
@@ -692,13 +693,13 @@ static void parsePayload(uint8_t* mqttPayload, int mqttPayload_len)
 
     commandReceivedlen = j;
 
-    LOG_DBG("ObjectID: %s\n", objectID);
+    LOG_INFO("ObjectID: %s\n", objectID);
 
-    LOG_DBG("InstanceID: %s\n", instanceID);
+    LOG_INFO("InstanceID: %s\n", instanceID);
 
-    LOG_DBG("CommandReceived: %s\n", commandReceived);
+    LOG_INFO("CommandReceived: %s\n", commandReceived);
 
-    LOG_DBG(" - CommandReceivedLen: %d\n", commandReceivedlen);
+    LOG_INFO(" - CommandReceivedLen: %d\n", commandReceivedlen);
 
 
 #if BOARD_SENSORTAG
@@ -747,7 +748,7 @@ static void parse32001()
   line = 0;
   column = 0;
 
-  for (i = 5, j = 0; i < commandReceivedlen; i++, j++) {
+  for (i = 6, j = 0; i < commandReceivedlen; i++, j++) {
     if ( (commandReceived[i] != pipe[0]) && (commandReceived[i] != semic[0]) && (commandReceived[i-1] != semic[0]) ) {
       sensorsreceived[line][column] = commandReceived[i];
       column++;
