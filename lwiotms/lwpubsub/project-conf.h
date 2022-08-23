@@ -51,11 +51,6 @@
 //Connection with test mosquitto MQTT Broker
 //#define MQTT_CLIENT_CONF_BROKER_IP_ADDR "0064:ff9b:0000:0000:0000:0000:05c4:5fd0"
 
-//#ProjectHuaweiUSP
-//IPv4: 159.138.214.207
-//IPv6: 9f8a:d6cf
-//#define MQTT_CLIENT_CONF_BROKER_IP_ADDR "0064:ff9b:0000:0000:0000:0000:9f8a:d6cf"
-
 /*
  * The Organisation ID.
  *
@@ -69,27 +64,8 @@
 #endif
 
 /*
- * The MQTT username.
- *
- * Ignored in Watson mode: In this mode the username is always "use-token-auth"
- */
-// #define MQTT_CLIENT_CONF_USERNAME "mqtt-client-username"
-
-/*
- * The MQTT auth token (password) used when connecting to the MQTT broker.
- *
- * Used with as well as without Watson.
- *
- * Transported in cleartext!
- */
-// #define MQTT_CLIENT_CONF_AUTH_TOKEN "AUTHTOKEN"
-
-
-/*
  * Security
 */
-//Parameters
-
 #define LWPUBSUB_AES_CBC_128 0x01
 #define LWPUBSUB_AES_CBC_192 0x02
 #define LWPUBSUB_AES_CBC_256 0x03

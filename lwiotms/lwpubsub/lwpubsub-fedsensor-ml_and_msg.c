@@ -257,7 +257,7 @@ static char valuereceived[10];
 
 
 /* Variable used to inform publish() to do not print energest values When
-   startting from commandReceived */
+   starting from commandReceived */
 static int publish_from_command = 0;
 /* Format: objectID||instanceID
    Example: 33030, 33031, 33040, 33040, 33380, 33110, 33111, 33250, 33251, etc.
@@ -265,25 +265,22 @@ static int publish_from_command = 0;
 */
 #define IPSO_SENSOR_SIZE 6
 static int ml_model = 0;
-//static int make_decision = 0;
 static int sensorsNumber = 0;
-static unsigned long sensorList[10]; //33250\0
+static unsigned long sensorList[10];
 static int polling_interval = 0;
-static float new_observation[10]; //{30.39, 89.86, 0.86, 42.86, 0.0, 0.0, 0.0, 0.0, 0.0};
-static char temp[4]; //para guardar a action
+static float new_observation[10];
+static char temp[4]; //action
 static int action = 0;
 
-// static int MODEL_IN_USE = 0;
-// //Controla se o modelo está em uso ou não. Se estiver em uso, não precisa ficar fazendo as contas de
 
 
 /*For k-means*/
-static float centroids[10][10]; // são 10 linhas de 10 colunas com valores float
+static float centroids[10][10];
 static int number_of_centroids = 0;
 
 /*For logreg*/
 static float bias[10];
-static float weights[10][10]; // são 10 linhas de 10 colunas com valores float
+static float weights[10][10];
 static int number_of_classes = 0;
 
 /*For linreg*/
@@ -295,7 +292,7 @@ static float lin_weights[10];
 
 // Get measurements
 #if BOARD_SENSORTAG
-#define SENSOR_READING_PERIOD (CLOCK_SECOND * 10) // de 20 para 10
+#define SENSOR_READING_PERIOD (CLOCK_SECOND * 10)
 #define SENSOR_READING_RANDOM (CLOCK_SECOND << 4)
 
 static struct ctimer tmp_timer, hdc_timer, mpu_timer;
@@ -334,21 +331,6 @@ get_tmp_reading()
     } else {
       printf("HDC: Temp Read Error\n");
     }
-
-  // value_measurement = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_ALL);
-  //
-  // if(value_measurement == TMP_007_READING_ERROR) {
-  //   printf("TMP: Ambient Read Error\n");
-  //   return;
-  // }
-  //
-  // value_measurement = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_AMBIENT);
-  // printf("TMP: Ambient=%d.%03d C\n", value_measurement / 1000, value_measurement % 1000);
-
-  // value = tmp_007_sensor.value(TMP_007_SENSOR_TYPE_OBJECT);
-  // printf("TMP: Object=%d.%03d C\n", value / 1000, value % 1000);
-
-  // SENSORS_DEACTIVATE(tmp_007_sensor);
 
   ctimer_set(&tmp_timer, next, init_tmp_reading, NULL);
 }
@@ -541,7 +523,6 @@ char *key = "4e6f726973504144506f6c6955535021";
 static uint8_t key_bytes[16]; //AES-CCM-8 - 128-bit key
 
 
-//char *nonce = "0000000000000";
 #define NONCE_LEN 13
 static char nonce[NONCE_LEN*2] = "00000000000000000000000000";
 
@@ -550,17 +531,12 @@ static void generate_nonce()
   //Random initialization
   random_init(random_rand() + (int16_t)uipbuf_get_attr(UIPBUF_ATTR_RSSI));
 
-//  printf("Rand 13: %lu", rand()%13);
-
   for (int i = 0, j = 0; i < NONCE_LEN; ++i, j += 2)
   {
     sprintf(nonce + j, "%02x", rand()%13 & 0xff);
   }
 
   LOG_DBG("Nonce generate_nonce: %s\n\n", nonce);
-  // for (int i = 0; i < 13; i++) {
-  //    nonce[i] = rand();
-  // }
 }
 
 
@@ -577,7 +553,6 @@ static void dump(uint8_t* str, int len)
 }
 #endif  /* IF LOG_LEVEL_DBG - PHEX and DUMP */
 
-// https://stackoverflow.com/questions/23191203/convert-float-to-string-without-sprintf
 #define CHAR_BUFF_SIZE 10
 static char * _float_to_char(float x, char *p) {
     char *s = p + CHAR_BUFF_SIZE; // go to end of buffer
@@ -617,7 +592,6 @@ static char * _float_to_char(float x, char *p) {
 
 /*---------------------------------------------------------------------------*/
 
-//static char metadata[20];
 static char objectID[6];
 static char instanceID[2];
 #define COMMAND_RECEIVED_BUFFER 650
@@ -628,37 +602,14 @@ static int commandReceivedlen = 0;
 
 static void parsePayload(uint8_t* mqttPayload, int mqttPayload_len)
 {
-  //char payload[200];
-  //memset(payload, 0, sizeof(payload));
-  //memset(valuereceived, 0, sizeof(valuereceived));
-
-  //Limpando todas as variáveis existentes:
-  //memset(objectID, 0, sizeof(objectID));
-  //memset(instanceID, 0, sizeof(instanceID));
   memset(commandReceived, 0, COMMAND_RECEIVED_BUFFER);
   commandReceived[0] = '\0';
-
-  //strncpy(payload, (char *)mqttPayload, mqttPayload_len);
-
 
 #if (LOG_LEVEL == LOG_LEVEL_DBG)
   LOG_DBG("FUNCTION parsePayload - mqttPayload decrypted: "); dump(mqttPayload, mqttPayload_len); printf("\n");
 #endif
 
   LOG_DBG("mqttPayload_len: %d\n", mqttPayload_len);
-
-  //payload[mqttPayload_len] = '\0';
-
-  //LOG_DBG("Payload: %s\n", payload);
-
-
-// #if (MAKE_NATIVE == 1)
-//   LOG_DBG("strlen payload size: %lu\n", strlen(payload));
-// #else
-//   LOG_DBG("strlen payload size: %u\n", strlen(payload));
-// #endif
-
-  //Exemplo de mensagem recebida: 32001010;1|33250;2|33251;3|33252;4|33253"
 
   int position = 0;
   int i, j = 0;
@@ -675,17 +626,12 @@ static void parsePayload(uint8_t* mqttPayload, int mqttPayload_len)
 
     LOG_DBG("FUNCTION parsePayload, valor do position: %d\n", position);
 
-//nem precisa ser o instanceID pode ser uma variável que controla o intervalo de
-//tempo de obtenção das medições
-    //instanceID[0] = payload[position];
     instanceID[0] = (char)mqttPayload[position];
     instanceID[1] = '\0';
 
     position += 2;
 
-    //for (i = position, j = 0; i < strlen(payload); i++, j++) {
     for (i = position, j = 0; i < mqttPayload_len; i++, j++) {
-      //commandReceived[j] = payload[i];
       commandReceived[j] = (char)mqttPayload[i];
     }
 
@@ -703,13 +649,11 @@ static void parsePayload(uint8_t* mqttPayload, int mqttPayload_len)
 
 
 #if BOARD_SENSORTAG
-  if(strncmp(objectID, "03303", 5) == 0) { //commandReceived request measurement
+  if(strncmp(objectID, "03303", 5) == 0) {
     LOG_INFO(" - Temperature request - \n");
-    // init_tmp_reading();
   }
-  if(strncmp(objectID, "03304", 5) == 0) { //commandReceived request measurement
+  if(strncmp(objectID, "03304", 5) == 0) {
     LOG_INFO(" - Humidity request - \n");
-    // init_hdc_reading();
   }
 #endif
 
@@ -719,13 +663,11 @@ static void parsePayload(uint8_t* mqttPayload, int mqttPayload_len)
 
 static void parse32001()
 {
-  //commandReceived:  100;1|033250;2|033251;3|033252;4|033253"
-  char time_interval[4]; //até 999
+  char time_interval[4];
   int i = 0;
   int j = 0;
 
   //*******************************************************************
-  //Preencher intervalo de tempo
   for (i = 0; i < 3; i++) {
     time_interval[i] = commandReceived[i];
   }
@@ -736,15 +678,11 @@ static void parse32001()
   conf.pub_interval = (polling_interval * CLOCK_SECOND); //(LWPUBSUB_POLLFREQUENCY * CLOCK_SECOND)
   //*******************************************************************
 
-  sensorsNumber = ((commandReceivedlen - 3) / 9); //é o número de linhas da variável sensorList
+  sensorsNumber = ((commandReceivedlen - 3) / 9);
 
-  char sensorsreceived[10][7]; // são 10 linhas de 7 caracteres cada linha: 6 caract. + \0
+  char sensorsreceived[10][7];
   memset(sensorsreceived, 0, sizeof(sensorsreceived));
 
-  // int line = 0;
-  // int column = 0;
-  // char pipe[2] = "|";
-  // char semic[2] = ";";
   line = 0;
   column = 0;
 
@@ -754,8 +692,7 @@ static void parse32001()
       column++;
     }
 
-    if ( (commandReceived[i] == semic[0]) ) { //pula pra próxima linha
-      //sensorsreceived[line][column] = '\0';
+    if ( (commandReceived[i] == semic[0]) ) {
       line++;
       column = 0;
     }
@@ -787,8 +724,8 @@ static void linreg_predict()
       energest_type_time(ENERGEST_TYPE_TRANSMIT), energest_type_time(ENERGEST_TYPE_LISTEN), ENERGEST_GET_TOTAL_TIME());
   #endif /* ENERGEST_CONF_ON */
 
-  int n = 0; //índice do número de sensores (linhas dos weights)
-  float result = 0.0; // para armazenar a multiplicação de new_observation[n] * weights[m][n]
+  int n = 0;
+  float result = 0.0;
   char reading[10];
 
   for (n = 0; n < sensorsNumber; n++) {
@@ -845,17 +782,12 @@ static void kmeans_predict()
       energest_type_time(ENERGEST_TYPE_TRANSMIT), energest_type_time(ENERGEST_TYPE_LISTEN), ENERGEST_GET_TOTAL_TIME());
   #endif /* ENERGEST_CONF_ON */
 
-  //LOG_DBG("commandReceived: %s", commandReceived);
-
 
   //*******************************************************************
-  //Preencher matriz, em que cada linha é um centróide
   float dist_euclid[10];
   float middle_result[10][10];
   char reading[10];
 
-
-  //sensorsNumber = 4; //only for testing!
 
   for (int i = 0; i < 10; i++ ) {
     for (int j = 0; j < 10; j++) {
@@ -866,7 +798,6 @@ static void kmeans_predict()
 
   for (int i = 0; i < number_of_centroids; i++ ) { // para cada centróide
     for (int j = 0; j < sensorsNumber; j++) { // número de sensores (número de variáveis, cada sensor é uma variável que coleta dados)
-      //LOG_DBG_("new_observation[%d]: %.2f", j, new_observation[j]);
       middle_result[i][j] = new_observation[j] - centroids[i][j];
       dist_euclid[i] += powf(middle_result[i][j],2);
     }
@@ -877,11 +808,9 @@ static void kmeans_predict()
     memset(reading, 0, sizeof(reading));
     reading[0] = '\0';
 
-    // LOG_INFO_(" ---- as int: %d\n", (int)dist_euclid[i]);
-
   }
 
-  // Verifica cluster
+  // Check cluster
   int k = 0;
   for (int i = 0; i < number_of_centroids; i++) {
     if (dist_euclid[i] < dist_euclid[k]) { k = i; }
@@ -920,7 +849,6 @@ static void kmeans_predict()
 
 static void logreg_predict()
 {
-  //LOG_DBG("PREDICT! Regressão Logística!\n");
   LOG_INFO("------------------------- Logistic Regression predict --------------------------\n");
   #if (ENERGEST_CONF_ON == 1)
     energest_flush();
@@ -929,14 +857,12 @@ static void logreg_predict()
       energest_type_time(ENERGEST_TYPE_CPU), energest_type_time(ENERGEST_TYPE_LPM), energest_type_time(ENERGEST_TYPE_DEEP_LPM),
       energest_type_time(ENERGEST_TYPE_TRANSMIT), energest_type_time(ENERGEST_TYPE_LISTEN), ENERGEST_GET_TOTAL_TIME());
   #endif /* ENERGEST_CONF_ON */
-  //printf("commandReceived: %s", commandReceived);
 
   int m = 0; //índice do número de classes (colunas dos weights)
   int n = 0; //índice do número de sensores (linhas dos weights)
   float mult_values_weights[10]; // para armazenar a multiplicação de new_observation[n] * weights[m][n]
   float exp_sum = 0; //somatório de e (início do Softmax)
   float logreg_prob[10]; //armazena as probabilidades de cada classe
-  // char fbuf[15]; //buffer para armazenar o valor de float para log
   int logreg_class = 0; //armazena qual é a classe resultante da regressão logística
   char reading[10];
 
@@ -950,42 +876,12 @@ static void logreg_predict()
   }
   m = 0;
 
-  /*FAZER PREVISÃO COM BASE NAS NOVAS MEDIÇÕES*/
 
-  //FAZER OS CÁLCULOS AGORA!
-  /*
-  #z = X*w + b
-  #X -> medições
-  #w -> weights
-  #b -> bias
-  z = nova_medicao@clf.coef_.T + clf.intercept_
-
-  Aqui:
-  X é: new_observation[10], na verdade new_observation[4] (usando 33250, 33251, 33252, 33253), seria isso:
-    (i == 4) new_observation[i] = {30.39, 89.86, 0.86, 42.86};
-  w é: weights[10][10], no exemplo com 3 classes:
-    Class [0]: [-0.0636] [-0.0477] [-1.0038] [-0.0266]
-    Class [1]: [-0.0156] [0.0121] [0.1495] [0.0092]
-    Class [2]: [0.0792] [0.0356] [0.8543] [0.0174]
-  Então, X*w é:
-  30.39 * -0.0636 + 89.86 * -0.0477 + 0.86 * -1.0038 + 42.86 * -0.0266 = -1.931434931 + -4.282786009  + -0.863268378  + -1.14031773 = -8.217807048
-
-
-  */
-  //Multiplicação X*w (new_observation[j] * weights[m][n])
   for (m = 0; m < number_of_classes; m++) {
-    //printf("\n Class %d: ", m);
     for (n = 0; n < sensorsNumber; n++) {
       mult_values_weights[m] += new_observation[n] * weights[m][n];
     }
   }
-
-  // LOG_INFO("Resultado de X*w: ");
-  // for (int i = 0; i < number_of_classes ; i++) {
-  //   LOG_INFO_("[%.4f] ", mult_values_weights[i]);
-  // }
-  // LOG_INFO_("\n");
-
 
   for (n = 0; n < number_of_classes ; n++) {
     mult_values_weights[n] += bias[n];
@@ -1001,25 +897,16 @@ static void logreg_predict()
   LOG_INFO_("\n");
 
   // Softmax:
-  //Exp_sum:
   for (n = 0; n < number_of_classes ; n++) {
     exp_sum += exp(mult_values_weights[n]);
   }
 
-  // LOG_INFO("EXP_SUM: %.4f", exp_sum);
-  // LOG_INFO_(" -- as int: %d\n", (int)exp_sum);
-
   for (n = 0; n < number_of_classes ; n++) {
     logreg_prob[n] = exp(mult_values_weights[n]) / exp_sum;
-    // snprintf(fbuf, 14, "%g", logreg_prob[n]);
     LOG_INFO("logreg_prob[%d]: %.4f  ", n, logreg_prob[n]);
     LOG_INFO("_ as string: %s \n", _float_to_char(logreg_prob[n], reading));
     memset(reading, 0, sizeof(reading));
     reading[0] = '\0';
-    //printf(" --- as int: %d.%d", (int)logreg_prob[n], ((int)(logreg_prob[n] * 1000)%1000));
-    // memset(fbuf, 0, sizeof(fbuf));
-    // LOG_INFO_(" as string: %s\n", fbuf);
-    // fbuf[0] = '\0'; //zera a variável fbuf
   }
 
   for (n = 0; n < number_of_classes ; n++) {
@@ -1065,84 +952,48 @@ int measurement_type = 0;
 
 static float read_33130()
 {
-  //Dummy:
-  // 0 - start value (x_coord, y_coord, z_coord)
-  /*  10 times not falling (x_coord max 2)
-      1 time falling (class 0) ........: 3.5665, 0.8648, -0.3776
-      REPEAT
-  */
     memset(sensor_value, 0, 10);
     float value = 0.0;
 
-
     if (measurement_type == 0) { // fall
-        //snprintf(sensor_value, 10, "%d.%u", 3, (rand()%10000));
-        //float value = strtof(sensor_value, NULL);
-        // value = 0.980;
         snprintf(sensor_value, 10, "%d.%d", (2+rand()%2), (rand()%10000));
         value = strtof(sensor_value, NULL);
     } else {
       snprintf(sensor_value, 10, "%d.%d", (0+rand()%1), (rand()%10000));
       value = strtof(sensor_value, NULL);
     }
-    //printf("sensor string: %s\n", sensor_value);
-    //printf("sensor float: %f\n", value);
-
-    // movement_type++;
 
     return value;
 }
 
 static float read_33131()
 {
-  //Dummy:
-  // 0 - start value (x_coord, y_coord, z_coord)
-  /*  10 times not falling (x_coord max 2)
-      1 time falling (class 0) ........: 3.5665, 0.8648, -0.3776
-      REPEAT
-  */
     memset(sensor_value, 0, 10);
     float value = 0.0;
 
     if (measurement_type == 0) { // fall
-        //snprintf(sensor_value, 10, "%d.%u", 3, (rand()%10000));
-        //float value = strtof(sensor_value, NULL);
-        // value = 0.031;
         snprintf(sensor_value, 10, "-%d.%d", (rand()%1), (rand()%10000));
         value = strtof(sensor_value, NULL);
     } else {
       snprintf(sensor_value, 10, "%d.%d", 0, (rand()%10000));
       value = strtof(sensor_value, NULL);
     }
-    //printf("sensor string: %s\n", sensor_value);
-    //printf("sensor float: %f\n", value);
 
     return value;
 }
 
 static float read_33132()
 {
-  //Dummy:
-  // 0 - start value (x_coord, y_coord, z_coord)
-  /*  10 times not falling (x_coord max 2)
-      1 time falling (class 0) ........: 3.5665, 0.8648, -0.3776
-      REPEAT
-  */
     memset(sensor_value, 0, 10);
     float value = 0.0;
 
     if (measurement_type == 0) { // fall
-        //snprintf(sensor_value, 10, "%d.%u", 3, (rand()%10000));
-        //float value = strtof(sensor_value, NULL);
-        // value = -0.121;
         snprintf(sensor_value, 10, "-%d.%d", (1+rand()%3), (rand()%10000));
         value = strtof(sensor_value, NULL);
     } else {
       snprintf(sensor_value, 10, "-%d.%d", 0, (rand()%10000));
       value = strtof(sensor_value, NULL);
     }
-    //printf("sensor string: %s\n", sensor_value);
-    //printf("sensor float: %f\n", value);
 
     return value;
 }
@@ -1150,19 +1001,11 @@ static float read_33132()
 
 static float read_33460()
 {
-  //Dummy:
-  // 0 - start value (x_coord, y_coord, z_coord)
-  /*  10 times not falling (x_coord max 2)
-      1 time falling (class 0) ........: 3.5665, 0.8648, -0.3776
-      REPEAT
-  */
     memset(sensor_value, 0, 10);
     float value = 0.0;
 
     snprintf(sensor_value, 10, "%d.%d", (99 + rand() / (RAND_MAX / (20 - 99 + 1) + 1)), (rand()%10000));
     value = strtof(sensor_value, NULL);
-    //printf("sensor string: %s\n", sensor_value);
-    //printf("sensor float: %f\n", value);
 
     return value;
 }
@@ -1170,13 +1013,9 @@ static float read_33460()
 
 static float read_33250()
 {
-  //printf("\nRead 33250");
   memset(sensor_value, 0, 10);
   float value = 0.0;
   if (measurement_type == 0) { // fall
-      //snprintf(sensor_value, 10, "%d.%u", 3, (rand()%10000));
-      //float value = strtof(sensor_value, NULL);
-      // value = 0.980;
       snprintf(sensor_value, 10, "%d.%d", (100+rand()%100), (rand()%10000));
       value = strtof(sensor_value, NULL);
   } else {
@@ -1184,76 +1023,51 @@ static float read_33250()
     value = strtof(sensor_value, NULL);
   }
 
-  // snprintf(sensor_value, 10, "%d.%d", (0+rand()%10), (rand()%10));
-  // //printf("sensor string: %s\n", sensor_value);
-  // float value = strtof(sensor_value, NULL);
-  // //printf("sensor float: %f\n", value);
   return value;
 }
 
 static float read_33251()
 {
-  //printf("\nRead 33251");
   memset(sensor_value, 0, 10);
   float value = 0.0;
   if (measurement_type == 0) { // fall
-      //snprintf(sensor_value, 10, "%d.%u", 3, (rand()%10000));
-      //float value = strtof(sensor_value, NULL);
-      // value = 0.980;
       snprintf(sensor_value, 10, "%d.%d", (100+rand()%90), (rand()%10000));
       value = strtof(sensor_value, NULL);
   } else {
     snprintf(sensor_value, 10, "%d.%d", (rand()%20), (rand()%10000));
     value = strtof(sensor_value, NULL);
   }
-  // snprintf(sensor_value, 10, "%d.%d", (10+rand()%5), (rand()%5));
-  // //printf("sensor string: %s\n", sensor_value);
-  // float value = strtof(sensor_value, NULL);
-  // //printf("sensor float: %f\n", value);
+
   return value;
 }
 
 static float read_33252()
 {
-  //printf("\nRead 33252");
   memset(sensor_value, 0, 10);
   float value = 0.0;
   if (measurement_type == 0) { // fall
-      //snprintf(sensor_value, 10, "%d.%u", 3, (rand()%10000));
-      //float value = strtof(sensor_value, NULL);
-      // value = 0.980;
       snprintf(sensor_value, 10, "%d.%d", (rand()%1), (rand()%10000));
       value = strtof(sensor_value, NULL);
   } else {
     snprintf(sensor_value, 10, "%d.%d", 0, (rand()%10000));
     value = strtof(sensor_value, NULL);
   }
-  // snprintf(sensor_value, 10, "%d.%d", (20+rand()%5), (rand()%5));
-  // //printf("sensor string: %s\n", sensor_value);
-  // float value = strtof(sensor_value, NULL);
-  // //printf("sensor float: %f\n", value);
+
   return value;
 }
 
 static float read_33253()
 {
-  //printf("\nRead 33253");
   memset(sensor_value, 0, 10);
   float value = 0.0;
   if (measurement_type == 0) { // fall
-      //snprintf(sensor_value, 10, "%d.%u", 3, (rand()%10000));
-      //float value = strtof(sensor_value, NULL);
-      // value = 0.980;
       snprintf(sensor_value, 10, "%d.%d", (50+rand()%50), (rand()%10000));
       value = strtof(sensor_value, NULL);
   } else {
     snprintf(sensor_value, 10, "%d.%d", (rand()%2), (rand()%10000));
     value = strtof(sensor_value, NULL);
   }
-  // snprintf(sensor_value, 10, "%d.%d", (30+rand()%5), (rand()%5));
-  // //printf("sensor string: %s\n", sensor_value);
-  // float value = strtof(sensor_value, NULL);
-  // //printf("sensor float: %.2f\n", value);
+
   return value;
 }
 
@@ -1333,8 +1147,6 @@ static float read_33259()
 
 
 /*---------------------------------------------------------------------------*/
-//reduzir tamanho da RAM
-//PROCESS(mqtt_client_process, "LWPubSub-FedSensor-LWAIoT - MQTT client process");
 PROCESS(mqtt_client_process, "LWPubSub-FedSensor");
 /*---------------------------------------------------------------------------*/
 static bool
@@ -1423,16 +1235,10 @@ publish(int is_measurement)
 
   LOG_INFO("RTIMER_NOW: %lu\n", RTIMER_NOW());
 
-  //printf("\nTomada de decisão a seguir... \n");
-
   if (measurement_type > 4) {
       measurement_type = 0;
   }
 
-  //Tomar a decisão
-  //Pegar a medição
-
-  //Limpa a variável new_observation
   int i = 0;
   for (i = 0; i < 10; i++) {
     new_observation[i] = 0.0;
@@ -1542,10 +1348,6 @@ publish(int is_measurement)
     energest_type_time(ENERGEST_TYPE_TRANSMIT), energest_type_time(ENERGEST_TYPE_LISTEN), ENERGEST_GET_TOTAL_TIME());
 #endif /* ENERGEST_CONF_ON */
 
-  //Make prediction
-  //Call the algorithm
-
-
 
 
   switch(strtol(objectID, NULL, 10)) {
@@ -1598,7 +1400,7 @@ publish(int is_measurement)
 
     buf_ptr = app_buffer;
 
-    //LWPubSub - Experiment uses only temperature objectID/instanceID
+    //LWPubSub - Article 1 - experiment uses only temperature objectID/instanceID
     // if(LWPUBSUB_IS_ENCRYPTED) {
     //   len = snprintf(buf_ptr, remaining, "33030|");
     // } else {
@@ -1669,18 +1471,12 @@ publish(int is_measurement)
     generate_nonce();
 
     #if (LOG_LEVEL == LOG_LEVEL_DBG)
-      //LOG_DBG("\nIV: "); dump(iv, 13); printf("\n");
       LOG_DBG(" *** Pre-encryption: ***\n");
       LOG_DBG("Key: %s\n", key);
       LOG_DBG("Nonce: %s, nonce len: %d\n", nonce, NONCE_LEN);
       LOG_DBG("Pub_topic: %s, pub_topic_size: %d\n", pub_topic, pub_topic_size);
-      LOG_DBG("App_Buffer.: %s, app_buffer_len: %d\n", app_buffer, payload_size); //printf("\n");
-
+      LOG_DBG("App_Buffer.: %s, app_buffer_len: %d\n", app_buffer, payload_size);
     #endif /* IF LOG_LEVEL_DBG */
-
-
-    #if (LOG_LEVEL == LOG_LEVEL_DBG)
-    #endif  /* IF LOG_LEVEL_DBG */
 
 
     static uint8_t nonce_bytes[NONCE_LEN];
@@ -1691,9 +1487,6 @@ publish(int is_measurement)
     char hdr_hex[50] = {0};
     char cleartext_hex[50] = {0};
 
-    //printf("\n\nPayload size: %d\n", payload_size);
-    //printf("\n\nApp buffer: %s\n", app_buffer);
-    //printf("\n\nPub topic : %s\n", pub_topic);
 
     for (int i = 0, j = 0; i < pub_topic_size; ++i, j += 2)
     {
@@ -1706,17 +1499,12 @@ publish(int is_measurement)
     }
 
 
-    //https://stackoverflow.com/questions/46210513/how-to-convert-a-string-to-hex-and-vice-versa-in-c
-    //printf("'%s' in hex is %s.\n", cleartext_string, cleartext_hex);
-
     uint8_t buffer[100] = {0};
     size_t a_len = strlen(hdr_hex) / 2;
     size_t m_len = strlen(cleartext_hex) / 2;
     hexconv_unhexlify(hdr_hex, strlen(hdr_hex), buffer, sizeof(buffer));
     hexconv_unhexlify(cleartext_hex, strlen(cleartext_hex), buffer + a_len, sizeof(buffer) - a_len);
 
-
-    //printf("TEST: encrypt in: %u + %u bytes\n", (unsigned)a_len, (unsigned)m_len);
 
     #if (ENERGEST_CONF_ON == 1)
       energest_flush();
@@ -1748,12 +1536,12 @@ publish(int is_measurement)
 
     uint8_t ciphertext[payload_size];
     for (int i = 0; i < payload_size; i++) {
-    	ciphertext[i] = buffer[i+pub_topic_size]; //descarto os primeiros 16 pq é o header (pub_topic)
+    	ciphertext[i] = buffer[i+pub_topic_size];
     }
 
     uint8_t mic[MICLEN];
     for (int i = 0; i < MICLEN; i++) {
-    	mic[i] = buffer[i+payload_size+pub_topic_size]; //descarto os primeiros 16 pq é o header
+    	mic[i] = buffer[i+payload_size+pub_topic_size];
     }
 
 
@@ -1764,14 +1552,6 @@ publish(int is_measurement)
       LOG_DBG("MIC: "); dump(mic, MICLEN); printf("\n");
     #endif /* IF LOG_LEVEL_DBG */
 
-
-    // ATENÇÃO!!!!!!
-    // O que falta fazer: preencher o hdr e o cleartext, verificar o tamanho do hdr
-    // e do cleartext para na hora de compor o appbuffer já ter os tamanhos certos
-    // Depois mexer na função que recebe isso lá no node.js (IoT Agent LWPubSub)
-
-
-
     /* Secure MQTT Payload construction
        App_buffer (LWPubSub):
          1st byte: encryption type
@@ -1781,14 +1561,10 @@ publish(int is_measurement)
 
     if(LWPUBSUB_IS_ENCRYPTED) {
 
-      // int i = 0;
-      // int j = 0;
-
       uint8_t i = 0;
       uint8_t j = 0;
 
       for (i = 0; i < NONCE_LEN; i++) {
-        //app_buffer[i] = iv[i];
         app_buffer[i] = nonce_bytes[i];
       }
 
@@ -1886,19 +1662,12 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
     char aad[LWPUBSUB_TOPIC_SIZE] = "0";
     strncpy(aad, topic, LWPUBSUB_TOPIC_SIZE);
 
-    // LWPubSub Message:
-    // NONCE (13 bytes)
-    // MIC (8 bytes)
-    // CIPHERTEXT (variable size)
-
     hexconv_unhexlify(key, strlen(key), key_bytes, sizeof(key_bytes));
 
     uint8_t received_nonce[NONCE_LEN];
     uint8_t received_tag[MICLEN];
     int received_message_len = chunk_len-NONCE_LEN-MICLEN;
     uint8_t received_message[received_message_len];
-    //uint8_t received_message[APP_BUFFER_SIZE/2];
-    //uint8_t received_message[200];
     LOG_INFO("Received message len: %d\n", received_message_len);
 
     /* ***** Print the payload ****** */
@@ -1927,12 +1696,9 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
 
     // DECRYPT!
 
-    //bool success;
     bool auth_check;
     uint8_t generated_mic[MICLEN];
     uint8_t buffer[LWPUBSUB_TOPIC_SIZE+received_message_len+MICLEN];
-    //uint8_t hdr_bytes[topic_len * 2];
-    //uint8_t cleartext_bytes[received_message_len];
 
     char hdr_hex[50] = {0};
     for (i = 0, j = 0; i < LWPUBSUB_TOPIC_SIZE; ++i, j += 2)
@@ -2007,9 +1773,7 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
       LOG_DBG("Buffer: "); dump(buffer, LWPUBSUB_TOPIC_SIZE+received_message_len+MICLEN); printf("\n");
     #endif
 
-    // Topic has 16 Bytes. Plaintext start at byte 17
     uint8_t received_plaintext[received_message_len];
-    //uint8_t received_plaintext[APP_BUFFER_SIZE] = {0};
     for (i = LWPUBSUB_TOPIC_SIZE, j = 0; i < LWPUBSUB_TOPIC_SIZE+received_message_len; i++, j++) {
       received_plaintext[j] = buffer[i];
     }
@@ -2039,11 +1803,10 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
 
 
     //*******************************************************************
-    //Preencher action - sempre passando 3 casas inteiras
+    //Action
     for (i = 0; i < 3; i++) {
       temp[i] = commandReceived[i];
     }
-    //printf("\n\ni do action: %d\n\n", i);
     temp[i] = '\0';
     action = (int)strtol(temp, NULL, 10);
     LOG_DBG("Action when: %d\n\n", action);
@@ -2062,7 +1825,7 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
       #endif /* ENERGEST_CONF_ON */
 
       //Parse 32001
-      parse32001(); //first LWAIoT message
+      parse32001(); //first FedSensor message
 
       #if (ENERGEST_CONF_ON == 1)
         energest_flush();
@@ -2075,7 +1838,6 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
 
     } else if ( (strncmp(objectID, "32002", 5) == 0) ) {
       LOG_INFO("NÃO EXISTE MAIS ISSO! - Solicitou 32002 - config. sensor para disparar ação.\n");
-      //parse32002(commandReceived);
       return;
 
 
@@ -2095,8 +1857,6 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
             energest_type_time(ENERGEST_TYPE_TRANSMIT), energest_type_time(ENERGEST_TYPE_LISTEN), ENERGEST_GET_TOTAL_TIME());
         #endif /* ENERGEST_CONF_ON */
 
-        //Mensagem:
-        //"250;1|16.0126;2|0.8444#0.4488#8.0331#0.2608"
         int n = 0;
         lin_bias = 0.0;
         for (n = 0; n < 10; n++) {
@@ -2108,21 +1868,18 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
         j = 0;
         for (i = 6; i < commandReceivedlen; i++) {
           if ( (commandReceived[i] != pipe[0]) && (commandReceived[i] != semic[0]) && (commandReceived[i-1] != semic[0]) && (commandReceived[i] != hashtag[0]) ) {
-              //printf("\ncommandReceived[%d]: %c", i, commandReceived[i]);
               valuereceived[j] = commandReceived[i];
               j++;
-              //printf("valuereceived[%d]: %s\n", j, valuereceived);
           }
 
-          if ( commandReceived[i] == semic[0] ) { //passou por um ponto e vírgula e, independentemente de ser o primeiro ou não, não é mais bias
+          if ( commandReceived[i] == semic[0] ) {
               lin_bias = strtof(valuereceived, NULL);
-              //printf("bias: %.4f\n", lin_bias);
               memset(valuereceived, 0, 10);
               valuereceived[9] = '\0';
               j = 0;
           }
 
-          if ( (commandReceived[i] == hashtag[0]) || (i == commandReceivedlen-1) ) { //armazena o valor
+          if ( (commandReceived[i] == hashtag[0]) || (i == commandReceivedlen-1) ) {
               lin_weights[n] = strtof(valuereceived, NULL);
               printf("lin_weights[%d]: %.4f\n", n, lin_weights[n]);
               n++;
@@ -2137,7 +1894,6 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
 
         LOG_INFO("Bias: [%.4f] ", lin_bias);
 
-        //sensorsNumber = 4; //only for testing!
         LOG_INFO_("\n");
         LOG_INFO("Vetor de weights:");
         for (int j = 0; j < sensorsNumber; j++ ) {
@@ -2176,38 +1932,10 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
             energest_type_time(ENERGEST_TYPE_TRANSMIT), energest_type_time(ENERGEST_TYPE_LISTEN), ENERGEST_GET_TOTAL_TIME());
         #endif /* ENERGEST_CONF_ON */
 
-
-        //*******************************************************************
-
-        //Mensagem:
-        //002;1|10.8151#1.4182#-12.2333;2|-0.0636#-0.0477#-1.0038#-0.0266;3|-0.0156#0.0121#0.1495#0.0092;4|0.0792#0.0356#0.8543#0.0174
-
-        //instanceID 1 é o bias
-        //1|10.8151#1.4182#-12.2333 ->    classe 0: [10.8151]    classe 1: [1.4182]    classe 2: [-12.2333]
-        //então, um primeiro 'for' para preencher o vetor de 'bias'
-
-        //instanceID 2 até o fim são os weights
-        //2|-0.0636#-0.0477#-1.0038#-0.0266;3|-0.0156#0.0121#0.1495#0.0092;4|0.0792#0.0356#0.8543#0.0174
-        //instanceID 2 é a classe 0: [-0.0636],  [-0.0477],  [-1.0038],  [-0.0266]
-        //instanceID 3 é a classe 1: [-0.0156],  [0.0121],   [0.1495],   [0.0092]
-        //instanceID 4 é a classe 2: [0.0792],   [0.0356],   [0.8543],   [0.0174]
-
-        //new_observation[] = [30.39, 89.86, 0.86, 42.86]
-
-        /*Em resumo:
-          Um vetor de 10 posições de bias: .............................................. bias[10]
-          Uma matriz 10 x 10 de weights: ................................................ weights[10][10]
-          Um vetor de 10 posições das novas medições: ................................... new_observation[10]
-          Uma matriz 10 x 10 de resultado da multiplicação das medições vezes weitghs: .. mult_values_weights[10]
-          Tem que identificar o número de classes que é enviado no bias e, depois, esperar que os instanceID
-          seguintes mostrem os weights do número de classes esperado
-        */
-
         int is_bias = 1;
         int m = 0;
         int n = 0;
 
-        //Inicialização das variáveis bias[10] e weights[10][10]
         for (m = 0; m < 10; m++) {
           for (n = 0; n < 10; n++) {
             weights[m][n] = 0.0;
@@ -2218,33 +1946,20 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
         n = 0;
 
 
-        //i começa em 6, porque passa o action e o índice do bias (que é 1)
-        //002;1|10.8151#1.4182#-12.2333;2|-0.0636#-0.0477#-1.0038#-0.0266;3|-0.0156#0.0121#0.1495#0.0092;4|0.0792#0.0356#0.8543#0.0174
-
-        //is_bias = 1; //já começo no bias no byte 5
         i = 0;
-        j = 0; // controla o índice do valor a ser recebido no char valuereceived[] que será valuereceived[j], o certo é não usar a variável column
+        j = 0;
         for (i = 6; i < commandReceivedlen; i++) {
-          //if  ( (strncmp(commandReceived[i], "1", 1) == 0) && (commandReceived[i-1] == semic[0]) && (commandReceived[i+1] == pipe[0]) ) {
-          //É instanceID 1, e não qualquer número 1 então preencher o bias
 
           if ( (commandReceived[i] != pipe[0]) && (commandReceived[i] != semic[0]) && (commandReceived[i-1] != semic[0]) && (commandReceived[i] != hashtag[0]) ) {
-            //printf("\ncommandReceived[%d]: %c", i, commandReceived[i]);
-            // printf("line: %d", line);
-            // printf("column: %d\n", column);
             valuereceived[j] = commandReceived[i];
             j++;
-            //printf("valuereceived[%d]: %s\n", j, valuereceived);
           }
 
-          if ( (commandReceived[i] == hashtag[0]) || (i == commandReceivedlen-1) ) { //pula pra próxima coluna
-            //printf("entrou hashtag\n");
+          if ( (commandReceived[i] == hashtag[0]) || (i == commandReceivedlen-1) ) {
             if (is_bias == 1) {
               bias[n] = strtof(valuereceived, NULL);
-              //printf(" ....> bias[%d]: %.4f\n", n, bias[n]);
             } else {
               weights[m][n] = strtof(valuereceived, NULL);
-              //printf(" ....> weights[%d][%d]: %.4f ", m, n, weights[m][n]);
             }
             n++;
             j = 0;
@@ -2252,18 +1967,13 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
             valuereceived[9] = '\0';
           }
 
-          if ( commandReceived[i] == semic[0] ) { //passou por um ponto e vírgula e, independentemente de ser o primeiro ou não, não é mais bias
-            //printf("entrou semic\n");
-            //if ( (strncmp(commandReceived[i+1], "2", 1) == 0) ) { //acabou bias, vai começar weights
-            if ( (commandReceived[i+1] == dois[0]) ) { //acabou bias, vai começar weights
-              //printf("\n\n instanceID é 2! \n\n");
+          if ( commandReceived[i] == semic[0] ) {
+            if ( (commandReceived[i+1] == dois[0]) ) {
               bias[n] = strtof(valuereceived, NULL);
-              //printf(" ....> bias[%d]: %.4f \n-- end bias\nStart weights:\n", n, bias[n]);
               is_bias = 0;
               number_of_classes = n + 1;
             } else {
               weights[m][n] = strtof(valuereceived, NULL);
-              //printf(" ....> weights[%d][%d]: %.4f\n", m, n, weights[m][n]);
               m++;
             }
             n = 0;
@@ -2283,7 +1993,6 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
           LOG_INFO_("[%.4f] ", bias[i]);
         }
 
-        //sensorsNumber = 4; //only for testing!
         LOG_INFO_("\n");
         LOG_INFO("Matriz de weights:");
         for (int i = 0; i < number_of_classes; i++ ) {
@@ -2328,15 +2037,6 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
               energest_type_time(ENERGEST_TYPE_TRANSMIT), energest_type_time(ENERGEST_TYPE_LISTEN), ENERGEST_GET_TOTAL_TIME());
           #endif /* ENERGEST_CONF_ON */
 
-          // LOG_DBG("\nNew observation: ");
-          // for (int i = 0; i < 10; i++) {
-          //   LOG_DBG("[%.2f]", new_observation[i]);
-          // }
-          // LOG_DBG("\n");
-
-          // não fazer predict aqui, esperar o tempo
-
-          //kmeans_predict(); //K-means LWAIoT message
           LOG_INFO("Centroids: \n");
 
           line = 0;
@@ -2351,7 +2051,7 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
               m++;
             }
 
-            if ( (commandReceived[i] == semic[0]) ) { //pula pra próxima linha
+            if ( (commandReceived[i] == semic[0]) ) {
               centroids[line][column] = strtof(valuereceived, NULL);
               LOG_INFO_("[%d][%d]: %.4f\n", line, column, centroids[line][column]);
               line++;
@@ -2361,7 +2061,7 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
               valuereceived[9] = '\0';
             }
 
-            if ( (commandReceived[i] == hashtag[0]) || (i == commandReceivedlen-1) ) { //pula pra próxima coluna
+            if ( (commandReceived[i] == hashtag[0]) || (i == commandReceivedlen-1) ) {
               centroids[line][column] = strtof(valuereceived, NULL);
               LOG_INFO_("[%d][%d]: %.4f     ", line, column, centroids[line][column]);
               column++;
@@ -2516,8 +2216,6 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
     }
 //IPSO 3311 and 3338 devices end
 
-/* PENSAR!!!! Não mostrar energia de um commandReceived finish quando vi, porque no mqtt.c já tem um Publish finish
-   Na análise do log observar pelo Publish finish e não commandReceived finish */
 #if (ENERGEST_CONF_ON == 1)
     energest_flush();
     LOG_INFO("CommandReceived finish ");
@@ -2538,28 +2236,6 @@ pub_handler(const char *topic, uint16_t topic_len, const uint8_t *chunk,
 }
 
 
-
-  // /* If we don't like the length, ignore */
-  // if(topic_len != 23 || chunk_len != 1) {
-  //   LOG_ERR("Incorrect topic or chunk len. Ignored\n");
-  //   return;
-  // }
-
-  // /* If the format != json, ignore */
-  // if(strncmp(&topic[topic_len - 4], "json", 4) != 0) {
-  //   LOG_ERR("Incorrect format\n");
-  // }
-
-  // if(strncmp(&topic[10], "leds", 4) == 0) {
-  //   LOG_DBG("Received MQTT SUB\n");
-  //   if(chunk[0] == '1') {
-  //     leds_on(LEDS_RED);
-  //   } else if(chunk[0] == '0') {
-  //     leds_off(LEDS_RED);
-  //   }
-  //   return;
-  // }
-// }
 /*---------------------------------------------------------------------------*/
 static void
 mqtt_event(struct mqtt_connection *m, mqtt_event_t event, void *data)
@@ -2639,8 +2315,6 @@ mqtt_event(struct mqtt_connection *m, mqtt_event_t event, void *data)
 static int
 construct_pub_topic(void)
 {
-  // int len = snprintf(pub_topic, BUFFER_SIZE, "iot-2/evt/%s/fmt/json",
-  //                    conf.event_type_id);
   //LWPubSub - The same topic used in the article scenario: /99/<client_id>
   int len = snprintf(pub_topic, BUFFER_SIZE, "/99/%s", client_id);
   LOG_INFO("Pub Topic: %s\n", pub_topic);
@@ -2661,8 +2335,6 @@ construct_pub_topic(void)
 static int
 construct_sub_topic(void)
 {
-  // int len = snprintf(sub_topic, BUFFER_SIZE, "iot-2/cmd/%s/fmt/json",
-  //                    conf.cmd_type);
   //LWPubSub - subscribe topic: /99/<client_id>/cmd
   int len = snprintf(sub_topic, BUFFER_SIZE, "/99/%02x%02x%02x%02x%02x%02x/cmd",
                      linkaddr_node_addr.u8[0], linkaddr_node_addr.u8[1],
@@ -2682,12 +2354,6 @@ construct_sub_topic(void)
 static int
 construct_client_id(void)
 {
-  // int len = snprintf(client_id, BUFFER_SIZE, "d:%s:%s:%02x%02x%02x%02x%02x%02x",
-  //                    conf.org_id, conf.type_id,
-  //                    linkaddr_node_addr.u8[0], linkaddr_node_addr.u8[1],
-  //                    linkaddr_node_addr.u8[2], linkaddr_node_addr.u8[5],
-  //                    linkaddr_node_addr.u8[6], linkaddr_node_addr.u8[7]);
-
   int len = snprintf(client_id, BUFFER_SIZE, "%02x%02x%02x%02x%02x%02x",
                      linkaddr_node_addr.u8[0], linkaddr_node_addr.u8[1],
                      linkaddr_node_addr.u8[2], linkaddr_node_addr.u8[5],
@@ -2797,8 +2463,6 @@ static void
 connect_to_broker(void)
 {
   /* Connect to MQTT server */
-  // mqtt_connect(&conn, conf.broker_ip, conf.broker_port,
-  //              (conf.pub_interval * 3) / CLOCK_SECOND,
   mqtt_connect(&conn, conf.broker_ip, conf.broker_port,
                DEFAULT_KEEP_ALIVE_TIMER,
   #if MQTT_5
